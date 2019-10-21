@@ -37,7 +37,7 @@ Developed using:
 * Requires these libraries:
   * QT 5
   * openCV 4.1 compiled with openCV-contribs - should work with 3.x versions without much editing
-  * OpenGL
+  * OpenGL - I used deprecated functions starting from v3.1, but it works under Ubuntu with my GeForce 1080 Ti
 
 This software should also work under Microsoft Windows: if you tried it successfully please contact me, I'd like to offer compiled Windows executables
 <br/>
@@ -111,17 +111,16 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* left mouse button: hold and move your mouse to rotate the view on the x and y axes (you can also use page-up, page-down, home and end keys, or the big sliders, or the combox boxes near the sliders)
 	* CTRL + left mouse button: hold and move left-right to rotate the view on the z axis (you can also use insert and delete keys)
 	* right mouse button: drag to move the view on the x and y axes (you can also use left, right, up and down keys)
-	* the Reset button resets the zoom, center x and y, and x y and z rotation values to something that fits well the current color space
-	* the Light button gives more depth (shadows and light) to the spheres representing the colors - it is prettier BUT the colors become non-accurate
-	* the Full screen button makes the 3D view... full screen! Use the ESC key, it is the only way to get out of here. A button to save the current view stays in the top-left corner
+	* the Reset button resets the zoom, center x and y, and x y and z rotation values to something that fits the current color space well
+	* the Full screen button makes the 3D view... full screen! Use the ESC key, it is the only way to get out of here. A button to save the current view is in the top-left corner
 	
-* Light: you can use it to enhance the view, but keep in mind that the spheres colors are no longer accurate 
+* Light: gives more depth (shadows and light) to the spheres representing the colors - it is prettier BUT the colors become non-accurate. Use the Light switch to turn light on and off
 
 ### SAVING THE RESULTS
 
 ![Screenshot - Saving](screenshots/screenshot-buttons.jpg?raw=true)
 
-If you want to save the results, click on the "Save results" button. They will be saved with the provided file name + suffixes:
+* If you want to save the results, click on the "Save results" button. They will be saved with the provided file name + suffixes:
 	* Palette: filename-palette.png
 	* Color space: filename-color-space-XXX.png
 	* Quantized image: filename--quantized.png
@@ -135,21 +134,23 @@ If you want to save the results, click on the "Save results" button. They will b
 	
 * The hardest part to code! Lots of maths, lots of trial-and-error, but the results are pretty cool :)
 
+* I am not sure that what I coded about color spaces is absolutely right: if you find errors or misunderstandings, please let me know
+
 * You can visualize the dominant colors palette in any of the following color spaces:
 (examples below show the Joconda dominant colors distribution)
 
 	* RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space
-	![Screenshot - RGB](screenshots/example-color-space-rgb.jpg?raw=true)
+![Screenshot - RGB](screenshots/joconde-in-color-space-rgb.jpg?raw=true)
 	* HSV, HSL, HCV, HCL: these spaces are based on Hue. Then you have several methods, using several values: Lightness, Value, Chroma, and Saturation. The global shape of the space is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
-	![Screenshot - HSL](screenshots/example-color-space-hsl.jpg?raw=true)
+![Screenshot - HSL](screenshots/example-color-space-hsl.jpg?raw=true)
 	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a little White and Black added. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
-	![Screenshot - HWB](screenshots/example-color-space-hwb.jpg?raw=true)
+![Screenshot - HWB](screenshots/example-color-space-hwb.jpg?raw=true)
 	* CIE XYZ: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape. Be sure to put the file xyz-space.csv with the executable, it contains all the coodinates of the boundaries, each corresponding to a light wavelength. The only problem is that a dark and lighter version of the same color can be on the same spot, because the horse-shoe is almost on one plane. XYZ is the basis of several CIE color spaces
-	![Screenshot - XYZ](screenshots/example-color-space-xyz.jpg?raw=true)
+![Screenshot - XYZ](screenshots/example-color-space-xyz.jpg?raw=true)
 	* CIE L*A*B*: directly based on XYZ, it uses a white point as reference, mine is 2° and 65K, that's what you will see with the 3D view. LAB is largely used, for example in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and LAB information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
-	![Screenshot - L*A*B*](screenshots/example-color-space-lab.jpg?raw=true)
+![Screenshot - L*A*B*](screenshots/example-color-space-lab.jpg?raw=true)
 	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if's only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
-	![Screenshot - Wheel](screenshots/example-color-space-wheel.jpg?raw=true)
+![Screenshot - Wheel](screenshots/example-color-space-wheel.jpg?raw=true)
 
 * When choosing a color space, don't forget you have "default" viewing configurations, just use the "Reset" button
 
