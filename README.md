@@ -149,7 +149,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
 	* CIE L*A*B*: directly based on XYZ, it uses a white point as reference, mine is 2° and 65K, that's what you will see with the 3D view. LAB is largely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and LAB information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 ![Screenshot - L*A*B*](screenshots/exemple-color-space-lab.jpg?raw=true)
-	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if's only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
+	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if it is only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
 ![Screenshot - Wheel](screenshots/exemple-color-space-wheel.jpg?raw=true)
 
 * When choosing a color space, don't forget you have "default" viewing configurations, just use the "Reset" button
