@@ -142,15 +142,15 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space
 ![Screenshot - RGB](screenshots/joconde-in-color-space-rgb.jpg?raw=true)
 	* HSV, HSL, HCV, HCL: these spaces are based on Hue. Then you have several methods, using several values: Lightness, Value, Chroma, and Saturation. The global shape of the space is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
-![Screenshot - HSL](screenshots/example-color-space-hsl.jpg?raw=true)
+![Screenshot - HSL](screenshots/exemple-color-space-hsl.jpg?raw=true)
 	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a little White and Black added. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
-![Screenshot - HWB](screenshots/example-color-space-hwb.jpg?raw=true)
+![Screenshot - HWB](screenshots/exemple-color-space-hwb.jpg?raw=true)
 	* CIE XYZ: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape. Be sure to put the file xyz-space.csv with the executable, it contains all the coodinates of the boundaries, each corresponding to a light wavelength. The only problem is that a dark and lighter version of the same color can be on the same spot, because the horse-shoe is almost on one plane. XYZ is the basis of several CIE color spaces
-![Screenshot - XYZ](screenshots/example-color-space-xyz.jpg?raw=true)
-	* CIE L*A*B*: directly based on XYZ, it uses a white point as reference, mine is 2° and 65K, that's what you will see with the 3D view. LAB is largely used, for example in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and LAB information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
-![Screenshot - L*A*B*](screenshots/example-color-space-lab.jpg?raw=true)
+![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
+	* CIE L*A*B*: directly based on XYZ, it uses a white point as reference, mine is 2° and 65K, that's what you will see with the 3D view. LAB is largely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and LAB information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+![Screenshot - L*A*B*](screenshots/exemple-color-space-lab.jpg?raw=true)
 	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if's only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
-![Screenshot - Wheel](screenshots/example-color-space-wheel.jpg?raw=true)
+![Screenshot - Wheel](screenshots/exemple-color-space-wheel.jpg?raw=true)
 
 * When choosing a color space, don't forget you have "default" viewing configurations, just use the "Reset" button
 
