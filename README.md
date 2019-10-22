@@ -1,4 +1,4 @@
-# dominant-colors-rgb-wheel
+# dominant-colors-3d-color-space
 ## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results in 3D color spaces
 ### v0 - 2019-10-21
 
