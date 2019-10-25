@@ -5,15 +5,16 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#               v0 - 2019/10/21
+#               v0.1 - 2019/10/24
 #     - Lights
 #     - Mouse control :
 #         . zoom with wheel
 #         . rotate view on x/y axes with left mouse button
 #         . rotate view on z axis with CTRL + left mouse button
 #         . move view on x/y axes with right mouse button
+#         . sphere size with CTRL + wheel
 #
-# * QT signals sent when zoomed, moved or rotated
+# * QT signals sent when zoomed, moved, rotated, sphere size
 #
 # * Public access to zoom, position and rotation
 #
@@ -39,8 +40,6 @@ public:
     struct_palette palettes[1000]; // 1000 is very large !
     int nb_palettes; // number of colors in palette
 
-    void Capture(); // take a snapshot of rendered 3D scene
-
     int sphere_size; // size factor for spheres
 
     double xRot, yRot, zRot; // rotation values
@@ -57,6 +56,9 @@ public:
     std::string color_space; // color space to plot
 
     float size3d;
+
+    void Capture(); // take a snapshot of rendered 3D scene
+    void ConvertPalette();
 
 
 protected:
@@ -101,6 +103,7 @@ signals:
     void yShiftChanged(int dec);
 
     void zoomChanged(double zoom); // zoom signal
+    void sphereSizeChanged(int size); // zoom signal
 
     void verticesChanged(int nb_Vertices); // number of vertices signal
 

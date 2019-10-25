@@ -22,6 +22,7 @@
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/ximgproc.hpp>
+#include <QImage>
 
 const float Pi = atan(1)*4;
 enum shift_direction{shift_up=1, shift_right, shift_down, shift_left}; // directions for shift function

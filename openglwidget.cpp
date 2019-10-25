@@ -5,18 +5,16 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#               v0 - 2019/10/21
-#
-#
-# * Options :
+#               v0.1 - 2019/10/24
 #     - Lights
 #     - Mouse control :
 #         . zoom with wheel
 #         . rotate view on x/y axes with left mouse button
 #         . rotate view on z axis with CTRL + left mouse button
 #         . move view on x/y axes with right mouse button
+#         . sphere size with CTRL + wheel
 #
-# * QT signals sent when zoomed, moved or rotated
+# * QT signals sent when zoomed, moved, rotated, sphere size
 #
 # * Public access to zoom, position and rotation
 #
@@ -68,9 +66,9 @@ void openGLWidget::initializeGL() // launched when the widget is initialized
     glDisable(GL_CULL_FACE); // facet culling
     glEnable(GL_BLEND); // prefer using GLBlendFunc, used by the anaglyphic view
 
-    xRot = 156; // initial values of rotation
-    yRot = 28;
-    zRot = 0;
+    xRot = 287; // initial values of rotation
+    yRot = 0;
+    zRot = 300;
     xShift = 0; // initial (x,y) position
     yShift = 0;
     zoom3D = 4; // zoom coefficient
@@ -93,8 +91,8 @@ void openGLWidget::initializeGL() // launched when the widget is initialized
     color_space = "RGB";
     size3d = 1000.0f;
 
-    nb_palettes = -1; // we are going to populate the palette
-    for (int i = 0; i < 9; i++) // 4 * 4 *4 spĥeres
+    nb_palettes = -1; // we are going to populate the palette with 512 values
+    for (int i = 0; i < 9; i++) // 8 * 8 * 8 spĥeres
         for (int j = 0; j < 9; j++)
             for (int k = 0; k < 9; k++) {
                 nb_palettes++; // palette index
@@ -104,51 +102,9 @@ void openGLWidget::initializeGL() // launched when the widget is initialized
                 palettes[nb_palettes].RGB.G = j / 8.0f;
                 palettes[nb_palettes].RGB.B = k / 8.0f;
                 palettes[nb_palettes].percentage = 1.0f / 512.0f; // percentage
-
-                // HSV
-                float H, S, V, C; // HSLVC values
-                RGBtoHSV(palettes[nb_palettes].RGB.R,
-                         palettes[nb_palettes].RGB.G,
-                         palettes[nb_palettes].RGB.B,
-                         H, S, V, C); // convert RGB to HSV values
-                palettes[nb_palettes].HSV.H = H;
-                palettes[nb_palettes].HSV.C = C;
-                palettes[nb_palettes].HSV.S = S;
-                palettes[nb_palettes].HSV.V = V;
-
-                // HWB
-                float h, W, B; // HWB values
-                HSVtoHWB(H, S, V, h, W, B);
-                palettes[nb_palettes].HWB.H = h;
-                palettes[nb_palettes].HWB.W = W;
-                palettes[nb_palettes].HWB.B = B;
-
-                // HSL
-                float L;
-                RGBtoHSL(palettes[nb_palettes].RGB.R,
-                         palettes[nb_palettes].RGB.G,
-                         palettes[nb_palettes].RGB.B,
-                         H, S, L, C); // convert RGB to HSV values
-                palettes[nb_palettes].HSL.H = H;
-                palettes[nb_palettes].HSL.C = C;
-                palettes[nb_palettes].HSL.S = S;
-                palettes[nb_palettes].HSL.L = L;
-
-                // XYZ
-                float X, Y, Z; // XYZ and LAB values
-                RGBtoXYZ(palettes[nb_palettes].RGB.R, palettes[nb_palettes].RGB.G, palettes[nb_palettes].RGB.B, X, Y, Z); // convert RGB to XYZ values
-                palettes[nb_palettes].XYZ.X = X;
-                palettes[nb_palettes].XYZ.Y = Y;
-                palettes[nb_palettes].XYZ.Z = Z;
-
-                // LAB
-                float A;
-                XYZtoLAB(X, Y, Z, L, A, B); // convert XYZ to LAB values
-                palettes[nb_palettes].LAB.L = L;
-                palettes[nb_palettes].LAB.A = A;
-                palettes[nb_palettes].LAB.B = B;
             }
     nb_palettes++; // adjust number of palettes that must be in [1..x]
+    ConvertPalette(); // convert RGB to other values
     update(); // show new palette
 }
 
@@ -195,25 +151,25 @@ void openGLWidget::paintGL() // 3D rendering
     //// draw color space
 
     if (color_space == "RGB") { // RGB
-        // red x axis
+        // green x axis
         glLineWidth(32); // bigger width of the lines to really see them
         glBegin(GL_LINES); // draw several lines
             glColor3d(0,0,0); // axis origin : black
             glVertex3f(0.0f, 0.0f, 0.0f);
-            glColor3d(1,0,0); // x/R axis color : red
+            glColor3d(0,1,0); // x/R axis color : red
             glVertex3f(size3d, 0.0f, 0.0f);
         glEnd();
-        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 1, 0, 0);
+        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 0, 1, 0);
 
-        // green y axis
+        // red y axis
         glLineWidth(32); // bigger width of the lines to really see them
         glBegin(GL_LINES);
             glColor3d(0,0,0); // axis origin : black
             glVertex3f( 0.0f,     0.0f, 0.0f );
-            glColor3d(0,1,0); // green
+            glColor3d(1,0,0); // green
             glVertex3f( 0.0f, -size3d, 0.0f );
         glEnd();
-        DrawConeY(0.0f, -size3d, 0.0f, -200.0f, 50.0f, 100, 0, 1, 0);
+        DrawConeY(0.0f, -size3d, 0.0f, -200.0f, 50.0f, 100, 1, 0, 0);
 
         // blue z axis
         glLineWidth(32); // bigger width of the lines to really see them
@@ -293,8 +249,8 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].RGB.R * size3d,
                        palettes[n].RGB.G * size3d,
+                       palettes[n].RGB.R * size3d,
                        palettes[n].RGB.B * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G,palettes[n].RGB.B);
     }
@@ -306,15 +262,15 @@ void openGLWidget::paintGL() // 3D rendering
         glLineWidth(32);
         glBegin(GL_LINE_LOOP); // colored circle
             for (int i = 0; i < num_segments; i++) {
-                float theta = 2.0f * Pi * float(i) / float(num_segments); //current angle
-                HSVtoRGB(float(i) / float(num_segments) * 360.0f, 1, 1, R, G, B);
+                float angle = float(i) / float(num_segments); //current angle
+                HSVtoRGB(angle * 360.0f, 1, 1, R, G, B);
                 glColor3d(R, G, B); // color of segment
-                glVertex3f(size3d * cosf(theta), -size3d * sinf(theta), size3d); // vertex
+                glVertex3f(size3d * cosf(-angle * 2.0f * Pi), -size3d * sinf(-angle * 2.0f * Pi), size3d); // vertex
             }
         glEnd();
 
-        // black circle
-        DrawCircleXY(0, 0, 0, size3d, 360, 0, 0, 0, 32);
+        /*// black circle
+        DrawCircleXY(0, 0, 0, size3d, 360, 0, 0, 0, 32);*/
 
         // vertical axis black to white
         glLineWidth(32);
@@ -329,8 +285,8 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].HSV.S * cos(palettes[n].HSV.H * 2 * Pi) * size3d,
-                       palettes[n].HSV.S * sin(palettes[n].HSV.H * 2 * Pi) * size3d,
+                       palettes[n].HSV.S * cos(-palettes[n].HSV.H * 2 * Pi) * size3d,
+                       palettes[n].HSV.S * sin(-palettes[n].HSV.H * 2 * Pi) * size3d,
                        palettes[n].HSV.V * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
@@ -343,17 +299,17 @@ void openGLWidget::paintGL() // 3D rendering
         glBegin(GL_LINE_LOOP); // colored circle
             for (int i = 0; i < num_segments; i++) {
                 float theta = 2.0f * Pi * float(i) / float(num_segments); //current angle
-                HSLtoRGB(float(i) / float(num_segments) * 360.0f, 1, 0.5, R, G, B);
+                HSLtoRGB(-float(i) / float(num_segments) * 360.0f, 1, 0.5, R, G, B);
                 glColor3d(R, G, B); // color of segment
                 glVertex3f(size3d * cosf(theta), -size3d * sinf(theta), 500.0f); // vertex
             }
         glEnd();
 
-        // black circle
+        /*// black circle
         DrawCircleXY(0, 0, 0, size3d, 360, 0, 0, 0, 32);
 
         // white circle
-        DrawCircleXY(0, 0, size3d, size3d, 360, 1, 1, 1, 32);
+        DrawCircleXY(0, 0, size3d, size3d, 360, 1, 1, 1, 32);*/
 
         // vertical axis black to white
         glLineWidth(32);
@@ -368,8 +324,8 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].HSL.S * cos(palettes[n].HSL.H * 2 * Pi) * size3d,
-                       palettes[n].HSL.S * sin(palettes[n].HSL.H * 2 * Pi) * size3d,
+                       palettes[n].HSL.S * cos(-palettes[n].HSL.H * 2 * Pi) * size3d,
+                       palettes[n].HSL.S * sin(-palettes[n].HSL.H * 2 * Pi) * size3d,
                        palettes[n].HSL.L * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
@@ -388,6 +344,9 @@ void openGLWidget::paintGL() // 3D rendering
             }
         glEnd();
 
+        /*// black circle
+        DrawCircleXY(0, 0, size3d, size3d, 360, 0, 0, 0, 32);*/
+
         // vertical axis white to black
         glLineWidth(32);
         glBegin(GL_LINES); // vertical axis
@@ -396,13 +355,13 @@ void openGLWidget::paintGL() // 3D rendering
             glColor3d(0,0,0); // axis end : black
             glVertex3f(0.0f, 0.0f, size3d);
         glEnd();
-        DrawConeZ(0.0f, 0.0f, 0.0f, -200.0f, 50.0f, 100, 1, 1, 1);
+        DrawConeZ(0.0f, 0.0f, size3d, 200.0f, 50.0f, 100, 0, 0, 0);
 
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].HWB.W * cos(palettes[n].HWB.H * 2 * Pi) * size3d,
-                       palettes[n].HWB.W * sin(palettes[n].HWB.H * 2 * Pi) * size3d,
+                       (1 - palettes[n].HWB.W) * cos(palettes[n].HWB.H * 2 * Pi) * size3d,
+                       (1 - palettes[n].HWB.W) * sin(palettes[n].HWB.H * 2 * Pi) * size3d,
                        palettes[n].HWB.B * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
@@ -414,10 +373,10 @@ void openGLWidget::paintGL() // 3D rendering
         glLineWidth(32); // bigger width of the lines to really see them
         glBegin(GL_LINE_LOOP); // colored circle   
             for (int i = 0; i < num_segments; i++) {
-                float theta = 2.0f * Pi * float(i) / float(num_segments); //current angle
-                HSVtoRGB(float(i) / float(num_segments) * 360.0f, 1, 1, R, G, B);
+                float angle = float(i) / float(num_segments); //current angle
+                HSVtoRGB(angle * 360.0f, 1, 1, R, G, B);
                 glColor3d(R, G, B); // color of segment
-                glVertex3f(size3d * cosf(theta), -size3d * sinf(theta), size3d); // vertex
+                glVertex3f(size3d * cosf(-angle * 2.0f * Pi), -size3d * sinf(-angle * 2.0f * Pi), size3d); // vertex
             }
         glEnd();
 
@@ -434,8 +393,8 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].HSV.C * cos(palettes[n].HSV.H * 2 * Pi) * size3d,
-                       palettes[n].HSV.C * sin(palettes[n].HSV.H * 2 * Pi) * size3d,
+                       palettes[n].HSV.C * cos(-palettes[n].HSV.H * 2 * Pi) * size3d,
+                       palettes[n].HSV.C * sin(-palettes[n].HSV.H * 2 * Pi) * size3d,
                        palettes[n].HSV.V * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
@@ -448,7 +407,7 @@ void openGLWidget::paintGL() // 3D rendering
         glBegin(GL_LINE_LOOP); // colored circle
             for (int i = 0; i < num_segments; i++) {
                 float theta = 2.0f * Pi * float(i) / float(num_segments); //current angle
-                HSLtoRGB(float(i) / float(num_segments) * 360.0f, 1, 0.5, R, G, B);
+                HSLtoRGB(-float(i) / float(num_segments) * 360.0f, 1, 0.5, R, G, B);
                 glColor3d(R, G, B); // color of segment
                 glVertex3f(size3d * cosf(theta), -size3d * sinf(theta), 500.0f); // vertex
             }
@@ -468,15 +427,15 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].HSL.C * cos(palettes[n].HSL.H * 2 * Pi) * size3d,
-                       palettes[n].HSL.C * sin(palettes[n].HSL.H * 2 * Pi) * size3d,
+                       palettes[n].HSL.C * cos(-palettes[n].HSL.H * 2 * Pi) * size3d,
+                       palettes[n].HSL.C * sin(-palettes[n].HSL.H * 2 * Pi) * size3d,
                        palettes[n].HSL.L * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
 
-    if (color_space == "XYZ") { // CIE XYZ
+    if (color_space == "CIE XYZ") { // CIE XYZ
         // colored boundaries
-        XYZPlotFromCSV("xyz-space.csv", size3d);
+        XYZPlotFromCSV("xyz-space-10deg.csv", size3d);
 
         // White point
         glLineWidth(4);
@@ -519,12 +478,12 @@ void openGLWidget::paintGL() // 3D rendering
             float y = palettes[n].XYZ.Y / sum;
             float z = 1.0 - x - y;
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       x * size3d, y * size3d, z * size3d,
+                       y * size3d, x * size3d, z * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
         }
     }
 
-    if (color_space == "LAB") { // LAB
+    if (color_space == "CIE L*a*b*") { // LAB
         // vertical L axis
         glLineWidth(32);
         glBegin(GL_LINES); // vertical axis
@@ -538,13 +497,13 @@ void openGLWidget::paintGL() // 3D rendering
         // a axis (x) : green (-) to red (+)
         glLineWidth(32);
         glBegin(GL_LINES); // draw several lines
-            glColor3d(0,1,0); // green
-            glVertex3f(-size3d, 0.0f, 0.0f);
             glColor3d(1,0,0); // red
+            glVertex3f(-size3d, 0.0f, 0.0f);
+            glColor3d(0,1,0); // green
             glVertex3f(size3d, 0.0f, 0.0f);
         glEnd();
-        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 1, 0, 0); // red arrow
-        DrawConeX(-size3d, 0.0f, 0.0f, -200.0f, 50.0f, 100, 0, 1, 0); // green arrow
+        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 0, 1, 0); // green arrow
+        DrawConeX(-size3d, 0.0f, 0.0f, -200.0f, 50.0f, 100, 1, 0, 0); // red arrow
 
         // b axis (y) : blue (-) to yellow (+)
         glLineWidth(32);
@@ -560,9 +519,93 @@ void openGLWidget::paintGL() // 3D rendering
         // values
         for (int n = 0; n < nb_palettes;n++) // for each color in palette
             DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       palettes[n].LAB.A / 127.0f * size3d,
-                       palettes[n].LAB.B / 127.0f * size3d,
-                       palettes[n].LAB.L / 100.0f * size3d,
+                       -palettes[n].CIELAB.A * size3d,
+                       palettes[n].CIELAB.B * size3d,
+                       palettes[n].CIELAB.L * size3d,
+                       palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
+    }
+
+    if (color_space == "Hunter Lab") { // Hunter LAB
+        // vertical L axis
+        glLineWidth(32);
+        glBegin(GL_LINES); // vertical axis
+            glColor3d(0,0,0); // axis origin : black
+            glVertex3f(0.0f, 0.0f, 0.0f);
+            glColor3d(1,1,1); // axis end : white
+            glVertex3f(0.0f, 0.0f, size3d);
+        glEnd();
+        DrawConeZ(0.0f, 0.0f, size3d, 200.0f, 50.0f, 100, 1, 1, 1);
+
+        // a axis (x) : green (-) to red (+)
+        glLineWidth(32);
+        glBegin(GL_LINES); // draw several lines
+            glColor3d(1,0,0); // red
+            glVertex3f(-size3d, 0.0f, 0.0f);
+            glColor3d(0,1,0); // green
+            glVertex3f(size3d, 0.0f, 0.0f);
+        glEnd();
+        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 0, 1, 0); // green arrow
+        DrawConeX(-size3d, 0.0f, 0.0f, -200.0f, 50.0f, 100, 1, 0, 0); // red arrow
+
+        // b axis (y) : blue (-) to yellow (+)
+        glLineWidth(32);
+        glBegin(GL_LINES);
+            glColor3d(0,0,1); // blue
+            glVertex3f( 0.0f, size3d, 0.0f );
+            glColor3d(1,1,0); // yellow
+            glVertex3f( 0.0f, -size3d, 0.0f );
+        glEnd();
+        DrawConeY(0.0f, -size3d, 0.0f, -200.0f, 50.0f, 100, 1, 1, 0); // yellow arrow
+        DrawConeY(0.0f, size3d, 0.0f, 200.0f, 50.0f, 100, 0, 0, 1); // blue arrow
+
+        // values
+        for (int n = 0; n < nb_palettes;n++) // for each color in palette
+            DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
+                       -palettes[n].HLAB.A / 11.9982f * 127.0f * size3d,
+                        palettes[n].HLAB.B / 18.2014f * 127.0f * size3d,
+                        palettes[n].HLAB.L / 10.0f * 100.0f * size3d,
+                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
+    }
+
+    if (color_space == "CIE LCh") { // CIE LCH
+        // vertical L axis
+        glLineWidth(32);
+        glBegin(GL_LINES); // vertical axis
+            glColor3d(0,0,0); // axis origin : black
+            glVertex3f(0.0f, 0.0f, 0.0f);
+            glColor3d(1,1,1); // axis end : white
+            glVertex3f(0.0f, 0.0f, size3d);
+        glEnd();
+        DrawConeZ(0.0f, 0.0f, size3d, 200.0f, 50.0f, 100, 1, 1, 1);
+
+        // a axis (x) : green (-) to red (+)
+        glLineWidth(32);
+        glBegin(GL_LINES); // draw several lines
+            glColor3d(1,0,0); // red
+            glVertex3f(-size3d, 0.0f, 0.0f);
+            glColor3d(0,1,0); // green
+            glVertex3f(size3d, 0.0f, 0.0f);
+        glEnd();
+        DrawConeX(size3d, 0.0f, 0.0f, 200.0f, 50.0f, 100, 0, 1, 0); // green arrow
+        DrawConeX(-size3d, 0.0f, 0.0f, -200.0f, 50.0f, 100, 1, 0, 0); // red arrow
+
+        // b axis (y) : blue (-) to yellow (+)
+        glLineWidth(32);
+        glBegin(GL_LINES);
+            glColor3d(0,0,1); // blue
+            glVertex3f( 0.0f, size3d, 0.0f );
+            glColor3d(1,1,0); // yellow
+            glVertex3f( 0.0f, -size3d, 0.0f );
+        glEnd();
+        DrawConeY(0.0f, -size3d, 0.0f, -200.0f, 50.0f, 100, 1, 1, 0); // yellow arrow
+        DrawConeY(0.0f, size3d, 0.0f, 200.0f, 50.0f, 100, 0, 0, 1); // blue arrow
+
+        // values
+        for (int n = 0; n < nb_palettes;n++) // for each color in palette
+            DrawSphere(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
+                       -palettes[n].LCH.C * cos(palettes[n].LCH.H * 2.0f * Pi) * size3d,
+                       palettes[n].LCH.C * sin(palettes[n].LCH.H * 2.0f * Pi) * size3d,
+                       palettes[n].LCH.L * size3d,
                        palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B);
     }
 
@@ -645,6 +688,66 @@ void openGLWidget::resizeGL(int width, int height) // called when the widget is 
     glOrtho(-4 * 2048, +4 * 2048, -4 * 2048 / ratio, +4 * 2048 / ratio, -5000*2048, 5000*2048);
 #endif
     glMatrixMode(GL_MODELVIEW); // now openGL model mode
+}
+
+void openGLWidget::ConvertPalette()
+{
+    for (int n = 0; n < nb_palettes; n++) {
+        // HSV
+        float H, S, V, C; // HSLVC values
+        RGBtoHSV(palettes[n].RGB.R,
+                 palettes[n].RGB.G,
+                 palettes[n].RGB.B,
+                 H, S, V, C); // convert RGB to HSV values
+        palettes[n].HSV.H = H;
+        palettes[n].HSV.C = C;
+        palettes[n].HSV.S = S;
+        palettes[n].HSV.V = V;
+
+        // HWB
+        float h, W, B; // HWB values
+        HSVtoHWB(H, S, V, h, W, B);
+        palettes[n].HWB.H = h;
+        palettes[n].HWB.W = W;
+        palettes[n].HWB.B = B;
+
+        // HSL
+        float L;
+        RGBtoHSL(palettes[n].RGB.R,
+                 palettes[n].RGB.G,
+                 palettes[n].RGB.B,
+                 H, S, L, C); // convert RGB to HSV values
+        palettes[n].HSL.H = H;
+        palettes[n].HSL.C = C;
+        palettes[n].HSL.S = S;
+        palettes[n].HSL.L = L;
+
+        // XYZ
+        float X, Y, Z; // XYZ and LAB values
+        RGBtoXYZ(palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B, X, Y, Z); // convert RGB to XYZ values
+        palettes[n].XYZ.X = X;
+        palettes[n].XYZ.Y = Y;
+        palettes[n].XYZ.Z = Z;
+
+        // LAB
+        float A;
+        XYZtoLAB(X, Y, Z, L, A, B); // convert XYZ to LAB values
+        palettes[n].CIELAB.L = L;
+        palettes[n].CIELAB.A = A;
+        palettes[n].CIELAB.B = B;
+
+        // LCH
+        LABtoLCH(A, B, C, H); // convert LAB to CIE LCH values
+        palettes[n].LCH.L = L;
+        palettes[n].LCH.C = C;
+        palettes[n].LCH.H = H;
+
+        // Hunter LAB
+        XYZtoHLAB(X, Y, Z, L, A, B); // convert XYZ to Hunter LAB values
+        palettes[n].HLAB.L = L;
+        palettes[n].HLAB.A = A;
+        palettes[n].HLAB.B = B;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -783,15 +886,30 @@ void openGLWidget::mouseMoveEvent(QMouseEvent *event) // move and rotate view wi
 
 void openGLWidget::wheelEvent(QWheelEvent *event) // zoom
 {
+    bool key_control = QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ControlModifier); // modifier keys pressed ? (shift control etc)
+
     int n = event->delta(); // amount of wheel turn
     //zoom3D += n / 120 / 2; // should work with this (standard) value
 
-    if (n < 0) // zoom out
-        zoom3D = zoom3D / 1.25;
-    else // zoom in
-        zoom3D = zoom3D * 1.25;
+    if (key_control) {
+        if (n < 0) { // sphere size decrease
+            sphere_size--;
+            emit sphereSizeChanged(sphere_size-1); // emit signal
+        }
+        else { // sphere size increase
+            sphere_size++;
+            emit sphereSizeChanged(sphere_size + 1); // emit signal
+        }
 
-    emit zoomChanged(zoom3D); // emit signal
+    }
+    else {
+        if (n < 0) // zoom out
+            zoom3D = zoom3D / 1.25;
+        else // zoom in
+            zoom3D = zoom3D * 1.25;
+
+        emit zoomChanged(zoom3D); // emit signal
+    }
 
     update(); // redraw 3d scene
 }

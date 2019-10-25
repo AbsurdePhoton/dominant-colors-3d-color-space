@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1 - 2019/10/21
+#                v1.1 - 2019/10/24
 #
 #   - eigen vectors algorithm
 #   - K-means algorithm
@@ -47,9 +47,19 @@ struct struct_xyz {
     float Z; // range [0..1] - quasi-equal to blue
 };
 struct struct_lab {
-    float L; // range [0..100] - Lightness
-    float A; // range [-127..127] - red/magenta to green
-    float B; // range [-127..127] - yellow to blue
+    float L; // range [0..1] - Lightness
+    float A; // range [-1..1] - red/magenta to green
+    float B; // range [-1..1] - yellow to blue
+};
+struct struct_hlab {
+    float L; // range [0..1] - Lightness
+    float A; // range [-1..1] - red/magenta to green
+    float B; // range [-1..1] - yellow to blue
+};
+struct struct_lch {
+    float L; // range [0..1] - Lightness
+    float C; // range [0..1] - Chroma
+    float H; // range [0..1] - Hue
 };
 
 struct struct_palette { // structure of a color value
@@ -58,7 +68,9 @@ struct struct_palette { // structure of a color value
     struct_hsv HSV;
     struct_hwb HWB;
     struct_xyz XYZ;
-    struct_lab LAB;
+    struct_lab CIELAB;
+    struct_hlab HLAB;
+    struct_lch LCH;
     int count; // occurences
     float percentage; // percentage
 };
@@ -94,10 +106,16 @@ void XYZtoRGB(const float &X, const float &Y, const float &Z, float &R, float &G
 void XYZtoLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B); // convert CIE XYZ value to CIE LAB
 void LABtoXYZ(const float &L, const float &a, const float &b, float &X, float &Y, float &Z); // convert CIE LAB value to CIE XYZ
 
+void XYZtoHLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B); // convert from XYZ to Hunter Lab
+void HLABtoXYZ(const float &L, const float &A, const float &B, float &X, float &Y, float &Z); // convert from Hunter Lab to XYZ
+
 void HSVtoHWB(const float &h, const float &s, const float &v, float &H, float &W, float &B); // convert HSV value to HWB
 void HWBtoHSV(const float &h, const float &w, const float &b, float &H, float &S, float &V); // convert HWB vlaue to HSV
 
 void RGBToHWB(const float &r, const float &g, const float &b, float &H, float &W, float &B); // convert RGB value to HWB
 void HWBtoRGB(const float &h, const float &w, const float &b, float &R, float &G, float &B); // convert HWB value to RGB
+
+void LABtoLCH(const float &A, const float &B, float &C, float &H); // convert from LAB to LCH - L is the same so no need to convert
+void LCHtoLAB(const float &H, const float &C, float &A, float &B); // convert from LCH to LAB - L is the same so no need to convert
 
 #endif // DOMINANT_H

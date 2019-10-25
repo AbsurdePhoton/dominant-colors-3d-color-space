@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/21
+#                v0 - 2019/10/24
 #
 #   - circles
 #   - cones
@@ -56,7 +56,7 @@ void XYZPlotFromCSV(std::string name, const float &size3d) // draw XYZ color spa
                 SpectralColorToRGB(W, R, G, B); // convert wavelength to RGB
                 if (R + G + B != 0) { // some wavelengths are not visible
                     glColor3d(R, G, B); // change color to computed RGB
-                    glVertex3f(X * size3d, -Y * size3d, Z * size3d); // add vertex
+                    glVertex3f(Y * size3d, -X * size3d, Z * size3d); // add vertex
                 }
             }
         glEnd();

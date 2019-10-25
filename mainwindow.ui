@@ -202,7 +202,7 @@ results</string>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;p&gt;* v0.1: added several color spaces, cleaned up conversion functions, added sphere size control, etc&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -211,7 +211,7 @@ results</string>
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>v0</string>
+      <string>v0.1</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -457,7 +457,7 @@ QToolTip {
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size!&lt;/p&gt;&lt;p&gt;You can also use CTRL + mouse wheel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="minimum">
      <number>1</number>
@@ -490,9 +490,9 @@ QToolTip {
    <widget class="QComboBox" name="comboBox_color_space">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>370</x>
       <y>660</y>
-      <width>91</width>
+      <width>151</width>
       <height>31</height>
      </rect>
     </property>
@@ -864,7 +864,7 @@ image</string>
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results.&lt;/p&gt;&lt;p&gt;The 3d view is where the dominant colors of the chosen image are displayed. You can choose the color space in which colors are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed. You can easily locate the color distribution.&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color on the palette or quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;- left click on the 3D color space to rotate the view on x/y axes - you can also use PageUp PageDown Home and End keys&lt;/p&gt;&lt;p&gt;- right-click with your mouse on the 3D view to move it on the x/y plane - also use the cursor keys on your keyboard&lt;/p&gt;&lt;p&gt;- CTRL with left mouse click to rotate the 3D view on the z axis - Insert and Delete keys also work for this&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results.&lt;/p&gt;&lt;p&gt;The 3d view is where the dominant colors of the chosen image are displayed. You can choose the color space in which colors are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyse how a photo or painting colors are distributed. You can easily locate the color distribution.&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color on the palette or quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;- left click on the 3D color space to rotate the view on x/y axes - you can also use PageUp PageDown Home and End keys&lt;/p&gt;&lt;p&gt;- right-click with your mouse on the 3D view to move it on the x/y plane - also use the cursor keys on your keyboard&lt;/p&gt;&lt;p&gt;- CTRL with left mouse click to rotate the 3D view on the z axis - Insert and Delete keys also work for this&lt;/p&gt;&lt;p&gt;- CTRL with mouse wheel to change sphere size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
@@ -1279,7 +1279,7 @@ Color</string>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can sort the colors using many parameters directly form the computed color values in several color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You can sort the colors using many parameters directly from the computed color values in several color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QComboBox {
@@ -1494,7 +1494,7 @@ QToolTip {
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>413</x>
+      <x>353</x>
       <y>666</y>
       <width>21</width>
       <height>21</height>
@@ -1570,6 +1570,7 @@ QToolTip {
     <signal>yRotationChanged(int)</signal>
     <signal>zShiftChanged(int)</signal>
     <signal>verticesChanged(int)</signal>
+    <signal>sphereSizeChanged(int)</signal>
     <slot>SetXRotation(int)</slot>
     <slot>SetYRotation(int)</slot>
     <slot>SetSphereSize(int)</slot>
@@ -1724,5 +1725,24 @@ QToolTip {
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>openGLWidget_3d</sender>
+   <signal>sphereSizeChanged(int)</signal>
+   <receiver>verticalSlider_sphere_size</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>974</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>440</x>
+     <y>705</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <signal>sphereSizeChanged(int)</signal>
+ </slots>
 </ui>

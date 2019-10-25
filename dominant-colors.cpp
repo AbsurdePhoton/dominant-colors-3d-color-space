@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1 - 2019/10/21
+#                v1.1 - 2019/10/24
 #
 #   - eigen vectors algorithm
 #   - K-means algorithm
@@ -16,6 +16,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "dominant-colors.h"
+#include "mat-image-tools.h"
 
 using namespace std;
 
@@ -323,9 +324,8 @@ cv::Mat DominantColorsKMeans(const cv::Mat &source, const int &nb_clusters, cv::
 
 /////////////////// Color spaces conversions //////////////////////
 //// All values are in range [0..1]
-/// Apart LAB : L [0..100], a [-127..127], b [-127..127]
 
-void SpectralColorToRGB(const float &L, float &R, float &G, float &B) // RGB <0,1> <- lambda l <400,700> [nm]
+void SpectralColorToRGB(const float &L, float &R, float &G, float &B) // RGB [0..1] <- lambda l [400..700] [nm]
 {
     double t;
     R = 0.0;
@@ -345,6 +345,8 @@ void SpectralColorToRGB(const float &L, float &R, float &G, float &B) // RGB <0,
 
 //// HSV
 //// see https://en.wikipedia.org/wiki/HSL_and_HSV
+//// All values [0..1]
+//// Common range : H [0..359] S [0..100] V [0..100]
 
 void RGBtoHSV(const float &R, const float &G, const float &B, float& H, float& S, float &V, float &C) // convert RGB value to HSV+C
 {
@@ -390,7 +392,8 @@ void RGBtoHSV(const float &R, const float &G, const float &B, float& H, float& S
     C = diff; // chroma
 }
 
-void HSVtoRGB(const float &H, const float &S, const float &V, float &R, float &G, float &B) { // convert HSV value to RGB
+void HSVtoRGB(const float &H, const float &S, const float &V, float &R, float &G, float &B) // convert HSV value to RGB
+{
   float C = V * S; // chroma
   float HPrime = fmod(H / 60.0f, 6); // dominant 6th part of H - H must be in [0..360]
   float X = C * (1 - fabs(fmod(HPrime, 2) - 1));
@@ -439,6 +442,8 @@ void HSVtoRGB(const float &H, const float &S, const float &V, float &R, float &G
 
 //// HSL
 //// see https://en.wikipedia.org/wiki/HSL_and_HSV
+//// All values [0..1]
+//// Common range : H [0..359] S [0..100] L [0..100]
 
 void RGBtoHSL(const float &R, const float &G, const float &B, float &H, float &S, float &L, float &C) // convert RGB value to HSL
 {
@@ -532,6 +537,8 @@ void HSLtoRGB(const float &H, const float &S, const float &L, float &R, float &G
 
 //// HWB
 //// see https://en.wikipedia.org/wiki/HWB_color_model
+//// All values [0..1]
+//// Common range : H [0..359] W [0..100] B [0..100]
 
 void HSVtoHWB(const float &h, const float &s, const float &v, float &H, float &W, float &B) // convert HSV to HWB
 {
@@ -563,12 +570,15 @@ void HWBtoRGB(const float &h, const float &w, const float &b, float &R, float &G
     HSVtoRGB(H, S, V, R, G, B); // then to RGB
 }
 
-//// XYZ and LAB
+//// XYZ and L*A*B*
 //// See https://en.wikipedia.org/wiki/CIE_1931_color_space
 //// see https://fr.wikipedia.org/wiki/CIE_XYZ for XYZ
 //// see https://en.wikipedia.org/wiki/CIELAB_color_space for LAB
+//// All values [0..1]
+//// Common range for XYZ : [0..100]
+//// Common range for L*A*B*: L [0..100] S [-128..127] V [-128..127]
 
-void RGBtoXYZ(const float &R, const float &G, const float &B, float &X, float &Y, float &Z) // convert RGB value to CIE XYZ
+void RGBtoXYZ(const float &R, const float &G, const float &B, float &X, float &Y, float &Z) // convert RGB (in fact sRGB) value to CIE XYZ
 {
     float r, g, b;
 
@@ -586,18 +596,18 @@ void RGBtoXYZ(const float &R, const float &G, const float &B, float &X, float &Y
     else
         b = B / 12.92f * 100.0f;
 
-    // Gammut conversion : Observer= 2° and Illuminant= D65
+    // Gammut conversion
     X = r * 0.4124f + g * 0.3576f + b * 0.1805f;
     Y = r * 0.2126f + g * 0.7152f + b * 0.0722f;
     Z = r * 0.0193f + g * 0.1192f + b * 0.9505f;
 
-    //  Illuminant D65 with normalization Y = 100
-    X = X / 95.047f;         // ref_X =  95.047
-    Y = Y / 100.0f;          // ref_Y = 100.000
-    Z = Z / 108.883f;        // ref_Z = 108.883
+    //  Illuminant D65 2° with normalization Y = 100
+    X = X / 95.047f;
+    Y = Y / 100.0f;
+    Z = Z / 108.883f;
 }
 
-void XYZtoLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B) // convert CIE XYZ value to CIE LAB
+void XYZtoLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B) // convert CIE XYZ value to CIE L*A*B*
 {
     float x = X;
     float y = Y;
@@ -619,14 +629,18 @@ void XYZtoLAB(const float &X, const float &Y, const float &Z, float &L, float &A
     L = 116.0f * y - 16; // final result
     A = 500.0f * (x - y);
     B = 200.0f * (y - z);
+
+    L = L / 100.0f;
+    A = A / 127.0f;
+    B = B / 127.0f;
 }
 
-void LABtoXYZ(const float &L, const float &a, const float &b, float &X, float &Y, float &Z) // convert CIE LAB to CIE XYZ
+void LABtoXYZ(const float &L, const float &a, const float &b, float &X, float &Y, float &Z) // convert CIE L*A*B* to CIE XYZ
 {
     // it is exactly the reverse of XYZ to LAB
-    Y = (L + 16.0f) / 116.0f;
-    X = a / 500.0f + Y;
-    Z = Y - b / 200.0f;
+    Y = (L * 100.0f + 16.0f) / 116.0f;
+    X = a * 127.0f / 500.0f + Y;
+    Z = Y - b * 127.0f / 200.0f;
 
     if (powf(X,3) > 0.008856)
       X = 0.95047f * powf(X,3);
@@ -644,7 +658,7 @@ void LABtoXYZ(const float &L, const float &a, const float &b, float &X, float &Y
       Z = 1.08883f * (Z - 16.0f / 116.0f) / 7.787f;
 }
 
-void XYZtoRGB(const float &X, const float &Y, const float &Z, float &R, float &G, float &B) // convert from XYZ to RGB
+void XYZtoRGB(const float &X, const float &Y, const float &Z, float &R, float &G, float &B) // convert from XYZ to RGB (in fact sRGB)
 {
     // Observer. = 2°, Illuminant = D65
     R = X *  3.2406f + Y * -1.5372f + Z * -0.4986f;
@@ -666,4 +680,70 @@ void XYZtoRGB(const float &X, const float &Y, const float &Z, float &R, float &G
         B = 1.055f * powf(B, 1.0f/2.4f) - 0.055f;
     else
         B = B * 12.92f;
+}
+
+//// Hunter Lab (HLAB)
+//// See
+//// All values [0..1]
+//// Common range : L [0..100] a [-128..127] b [-128..127]
+
+void XYZtoHLAB(const float &X, const float &Y, const float &Z, float &L, float &A, float &B) // convert from XYZ to Hunter Lab
+{
+    if (Y == 0) {
+        L = 0;
+        A = 0;
+        B = 0;
+    }
+    else {
+        // values for D65 2° (CIE 1964) - see http://www.easyrgb.com/en/math.php
+        // values for D65 10° (CIE 1964) would be (94.811f, 100f, 107.304f)
+        float ref_X = 95.047f;
+        float ref_Y = 100.0f;
+        float ref_Z = 108.883f;
+
+        float Ka = (175.0f / 198.04f) * (ref_Y + ref_X);
+        float Kb = ( 70.0f / 218.11f) * (ref_Y + ref_Z);
+
+        L = sqrtf(Y / ref_Y);
+        A = Ka * (((X / ref_X) - (Y / ref_Y)) / sqrtf(Y / ref_Y)) / 127.0f;
+        B = Kb * (((Y / ref_Y) - (Z / ref_Z)) / sqrtf(Y / ref_Y)) / 127.0f;
+    }
+}
+
+void HLABtoXYZ(const float &L, const float &A, const float &B, float &X, float &Y, float &Z) // convert from Hunter Lab to XYZ
+{
+    // values for D65 2° (CIE 1964) - see http://www.easyrgb.com/en/math.php
+    // values for D65 10° (CIE 1964) would be (94.811f, 100f, 107.304f)
+    float ref_X = 95.047f;
+    float ref_Y = 100.0f;
+    float ref_Z = 108.883f;
+
+    float Ka = (175.0f / 198.04f) * (ref_Y + ref_X);
+    float Kb = ( 70.0f / 218.11f) * (ref_Y + ref_Z);
+
+    Y = powf(L / ref_Y, 2);
+    X =  (A / Ka * sqrtf(Y / ref_Y) + (Y / ref_Y)) * ref_X;
+    Z = -(B / Kb * sqrtf(Y / ref_Y) - (Y / ref_Y)) * ref_Z;
+
+}
+
+//// CIE LCh
+//// See
+//// All values [0..1]
+//// Common range : L [0..100] C [0..100] h [0..360]
+
+void LABtoLCH(const float &A, const float &B, float &C, float &H) // convert from LAB to HLC - L is the same so no need to convert
+{
+    C = sqrtf(pow(A, 2) + pow(B, 2));
+    H = atan2f(B, A) / 2.0f / Pi;
+    while (H < 0)
+        H += 1;
+    while (H > 1)
+        H -= 1;
+}
+
+void LCHtoLAB(const float &C, const float &H, float &A, float &B) // convert from HLC to LAB - L is the same so no need to convert
+{
+    A = C * cosf(H * 2.0f * Pi);
+    B = C * sinf(H * 2.0f * Pi);
 }

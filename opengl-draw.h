@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/21
+#                v0 - 2019/10/24
 #
 #   - circles
 #   - cones

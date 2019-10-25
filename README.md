@@ -23,7 +23,7 @@ I used bits of code from several sources, which are cited within the code
 
 Lately I paid great attention to colors in my photo editing process. Delicately tuning colors can greatly improve an already good photo, to make it stunning!
 
-I tried to find tools on the internet, but none of them had all I wanted, so I started coding once again. The first version was only a color wheel... now you can visualize the results in full 3D, in the most-known color spaces.
+I wanted to analyze how the colors in my photos were distributed. I tried to find tools on the internet, but none of them had all I wanted, so I started coding once again. The first version was only a color wheel... now you can visualize the results in full 3D, in the most-known color spaces + a 3D color wheel!
 
 I'm not an ace of C++ and QT. So, if you don't find my code pretty never mind, because it WORKS, and that's all I'm asking of it :)
 <br/>
@@ -68,13 +68,13 @@ This software should also work under Microsoft Windows: if you tried it successf
 	* Eigen vectors: the fastest - source: http://aishack.in/tutorials/dominant-color/
 	* K-means: a well-known algorithm to aggregate significant data  - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 
-* Click Compute to finish: you end up with 3D view, a quantized image and a palette. The elapsed time is shown in the LCD display
+* Click Compute to finish: you end up with 3D view, a quantized image and a palette. The elapsed time is shown on the LCD display
 
 ### ACCURACY OF ALGORITHMS
 
-![Screenshot - Accuracy](screenshots/joconde-quantized.jpg?raw=true)
+![Screenshot - Accuracy](screenshots/joconda-quantized.jpg?raw=true)
 
-How efficient are the two algorithms ? To check, I just had to test my tool on a RGB palette I produced in 5 minutes with Photoshop with the exact RGB values of the 12 Primary to Tertiary colors.
+How efficient are the two algorithms ? To check, I just had to test my tool on a RGB palette I produced in 5 minutes using Photoshop with the exact RGB values of the 12 Primary to Tertiary colors.
 
 The two methods seem pretty good at first glance. Even more when you click on the palette: a perfect match for both! The difference between the two methods will only be seen with complex images.
 
@@ -86,7 +86,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 * The Quantized image shows the image transposed to the dominant colors Palette. This way you can visually check if the number of dominant colors chosen at the beginning is sufficient or too wide
 
-* Use the Sort selector to organize colors in several ways, using the values from the color spaces
+* Use the Sort selector to organize colors in several ways, using the values from the color spaces or percentage of use
 
 * You can left-click with your mouse on any color on the Quantized image or the Palette, to get information:
 	* RGB values of picked color, in decimal and hexadecimal
@@ -107,14 +107,14 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* you can easily navigate with your mouse + keyboard
 
 * Controls :
-	* to use the mouse in the 3D space, be sure the focus is on it, not in a combo box fox example
-	* left mouse button: hold and move your mouse to rotate the view on the x and y axes (you can also use page-up, page-down, home and end keys, or the big sliders, or the combox boxes near the sliders)
-	* CTRL + left mouse button: hold and move left-right to rotate the view on the z axis (you can also use insert and delete keys)
+	* to use keyboard keys in the 3D space, be sure the focus is on it, not in a combo box fox example
+	* left mouse button: hold and drag your mouse to rotate the view on the x and y axes (you can also use page-up, page-down, home and end keys, or the big sliders, or the combox boxes near the sliders)
+	* CTRL + left mouse button: hold and drag left-right to rotate the view on the z axis (you can also use insert and delete keys)
 	* right mouse button: drag to move the view on the x and y axes (you can also use left, right, up and down keys)
 	* the Reset button resets the zoom, center x and y, and x y and z rotation values to something that fits the current color space well
-	* the Full screen button makes the 3D view... full screen! Use the ESC key, it is the only way to get out of here. A button to save the current view is in the top-left corner
+	* the Full screen button makes the 3D view... full screen! Use the ESC key, it is the only way to get out of here. A button to save the current view is at the top-left corner
 	
-* Light: gives more depth (shadows and light) to the spheres representing the colors - it is prettier BUT the colors become non-accurate. Use the Light switch to turn light on and off
+* Light: give more depth (shadows and light) to the spheres representing the colors - it is prettier BUT the colors become non-accurate. Use the Light switch to turn light on and off
 
 ### SAVING THE RESULTS
 
@@ -134,27 +134,29 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	
 * The hardest part to code! Lots of maths, lots of trial-and-error, but the results are pretty cool :)
 
-* I am not sure that what I coded about color spaces is absolutely right: if you find errors or misunderstandings, please let me know
+* I tried to check that what I coded about color spaces is right: anyway if you find errors or misunderstandings, please let me know
 
 * You can visualize the dominant colors palette in any of the following color spaces:
 (examples below show the Joconda dominant colors distribution)
 
 	* RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space
-![Screenshot - RGB](screenshots/joconde-in-color-space-rgb.jpg?raw=true)
+![Screenshot - RGB](screenshots/joconda-in-color-space-rgb.jpg?raw=true)
 	* HSV, HSL, HCV, HCL: these spaces are based on Hue. Then you have several methods, using several values: Lightness, Value, Chroma, and Saturation. The global shape of the space is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
 ![Screenshot - HSL](screenshots/exemple-color-space-hsl.jpg?raw=true)
 	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a little White and Black added. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
 ![Screenshot - HWB](screenshots/exemple-color-space-hwb.jpg?raw=true)
-	* CIE XYZ: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape. Be sure to put the file xyz-space.csv with the executable, it contains all the coodinates of the boundaries, each corresponding to a light wavelength. The only problem is that a dark and lighter version of the same color can be on the same spot, because the horse-shoe is almost on one plane. XYZ is the basis of several CIE color spaces
+	* CIE XYZ: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape. Be sure to put the file xyz-space-10deg.csv with the executable, it contains all the coodinates of the boundaries, each corresponding to a light wavelength. The values are converted to the latest CIE white point 10° D65 official values. The only problem is that a dark and lighter version of the same color can be on the same spot, because the horse-shoe is almost on one plane. XYZ is the basis of several CIE color spaces, so they too will be at reference point D65 10°
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
-	* CIE L*A*B*: directly based on XYZ, it uses a white point as reference, mine is 2° and 65K, that's what you will see with the 3D view. LAB is largely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and LAB information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
-![Screenshot - L*A*B*](screenshots/exemple-color-space-lab.jpg?raw=true)
+	* CIE L*a*b*: directly based on CIE XYZ, CIE L*a*b* is largely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
+	* Hunter Lab: directly computed from CIE XYZ, the ancestor of L*a*b*. Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
+![Screenshot - Hunter Lab](screenshots/exemple-color-hlab.jpg?raw=true)
 	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if it is only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
 ![Screenshot - Wheel](screenshots/exemple-color-space-wheel.jpg?raw=true)
 
 * When choosing a color space, don't forget you have "default" viewing configurations, just use the "Reset" button
 
-* The slider under the color spaces selector is used to control the color spheres size
+* The slider under the color spaces selector is used to control the color spheres size - you can use CTRL + mouse wheel for that, too
 
 * The last button is to save a snapshot of the curent 3D view. It also appears in full screen mode
 

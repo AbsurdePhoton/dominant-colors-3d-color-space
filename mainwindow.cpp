@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/21
+#                v0.1 - 2019/10/24
 #
 #-------------------------------------------------*/
 
@@ -55,8 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox_color_space->addItem(tr("HSL"));
     ui->comboBox_color_space->addItem(tr("HCL"));
     ui->comboBox_color_space->addItem(tr("HWB"));
-    ui->comboBox_color_space->addItem(tr("XYZ"));
-    ui->comboBox_color_space->addItem(tr("LAB"));
+    ui->comboBox_color_space->addItem(tr("CIE XYZ"));
+    ui->comboBox_color_space->addItem(tr("CIE L*a*b*"));
+    //ui->comboBox_color_space->addItem(tr("CIE LCh"));
+    ui->comboBox_color_space->addItem(tr("Hunter Lab"));
     ui->comboBox_color_space->addItem(tr("Wheel"));
     ui->comboBox_color_space->blockSignals(false);
 
@@ -161,30 +163,30 @@ void MainWindow::on_button_3d_reset_clicked() // recenter position zoom for 3D s
         ui->openGLWidget_3d->SetZRotation(-90);
     }
     if (ui->openGLWidget_3d->color_space == "RGB") {
-        ui->openGLWidget_3d->SetXRotation(200);
-        ui->openGLWidget_3d->SetYRotation(72);
-        ui->openGLWidget_3d->SetZRotation(-90);
+        ui->openGLWidget_3d->SetXRotation(287);
+        ui->openGLWidget_3d->SetYRotation(0);
+        ui->openGLWidget_3d->SetZRotation(300);
     }
     if ((ui->openGLWidget_3d->color_space == "HSV") or (ui->openGLWidget_3d->color_space == "HCV")
             or (ui->openGLWidget_3d->color_space == "HSL") or (ui->openGLWidget_3d->color_space == "HCL")) {
         ui->openGLWidget_3d->SetXRotation(280);
         ui->openGLWidget_3d->SetYRotation(0);
-        ui->openGLWidget_3d->SetZRotation(-90);
+        ui->openGLWidget_3d->SetZRotation(90);
     }
     if (ui->openGLWidget_3d->color_space == "HWB") {
         ui->openGLWidget_3d->SetXRotation(100);
         ui->openGLWidget_3d->SetYRotation(0);
         ui->openGLWidget_3d->SetZRotation(-90);
     }
-    if (ui->openGLWidget_3d->color_space == "LAB") {
+    if ((ui->openGLWidget_3d->color_space == "CIE L*a*b*") or (ui->openGLWidget_3d->color_space == "Hunter Lab")) {
         ui->openGLWidget_3d->SetXRotation(290);
         ui->openGLWidget_3d->SetYRotation(0);
-        ui->openGLWidget_3d->SetZRotation(60);
+        ui->openGLWidget_3d->SetZRotation(120);
     }
-    if (ui->openGLWidget_3d->color_space == "XYZ") {
-        ui->openGLWidget_3d->SetXRotation(20);
-        ui->openGLWidget_3d->SetYRotation(55);
-        ui->openGLWidget_3d->SetZRotation(180);
+    if (ui->openGLWidget_3d->color_space == "CIE XYZ") {
+        ui->openGLWidget_3d->SetXRotation(198);
+        ui->openGLWidget_3d->SetYRotation(205);
+        ui->openGLWidget_3d->SetZRotation(270);
     }
 
     ui->openGLWidget_3d->SetXShift(0); // initial (x,y) position
@@ -322,14 +324,14 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
         ui->label_color_r->setText(QString::number(R)); // show RGB values
         ui->label_color_g->setText(QString::number(G));
         ui->label_color_b->setText(QString::number(B));
-        QString hex = QString("%1").arg(((R & 0xff) << 16) + ((G & 0xff) << 8) + (B & 0xff), 6, 16, QChar('0')); // compute hexa RGB value
+        QString hex = QString(" %1").arg(((R & 0xff) << 16) + ((G & 0xff) << 8) + (B & 0xff), 6, 16, QChar('0')); // compute hexa RGB value
         ui->label_color_hex->setText("#" + hex.toUpper()); // show it
 
         // find color in palette
         bool found = false; // picked color found in palette ?
         for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // search in palette
             if ((round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0f) == R) and (round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0f) == G) and (round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0f) == B)) { // identical RGB values found
-                QString value = QString::number(ui->openGLWidget_3d->palettes[n].percentage * 100, 'f', 2) + "%"; // picked color percentage in quantized image
+                QString value = QString::number(ui->openGLWidget_3d->palettes[n].percentage * 100, 'f', 2) + " %"; // picked color percentage in quantized image
                 ui->label_color_percentage->setText(value); // display percentage
                 found = true; // color found in palette
                 break; // get out of loop
@@ -434,10 +436,10 @@ void MainWindow::on_button_load_image_clicked() // load image to analyze
 
 void MainWindow::on_button_save_clicked() // save dominant colors results
 {
-    if (!computed) { // nothing loaded yet = get out
+    /*if (!computed) { // nothing loaded yet = get out
         QMessageBox::critical(this, "Nothing to do!", "You have to load then compute before saving the images");
         return;
-    }
+    }*/
 
     QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), "PNG (*.png *.PNG)"); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
@@ -462,40 +464,48 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
 
     if (save) { // if successfully open
         setlocale(LC_ALL, "C"); // for numeric separator=dot instead of comma when using std functions
-        save << "RGB.R;RGB.G;RGB.G;RGB.hexadecimal;HSV.H;HSV.S;HSV.V;HSV.C;HSL.H;HSL.S;HSL.L;HSL.C;XYZ.X;XYZ.Y;XYZ.Z;LAB.L;LAB.a;LAB.b;HWB.H;HWB.W;HWB.B;Percentage\n"; // CSV header
+        save << "RGB.R byte;RGB.G byte;RGB.G byte;RGB hexadecimal;HSV.H °;HSV.S %;HSV.V %;HSV.C %;HSL.H °;HSL.S %;HSL.L %;HSL.C %;XYZ.X %;XYZ.Y %;XYZ.Z %;L*A*B*.L %;L*A*B*.a signed byte;L*A*B*.b signed byte;HWB.H °;HWB.W %;HWB.B %;Hunter LAB.L %;Hunter LAB.a signed byte;Hunter LAB.b signed byte;LCH.L %;LCH.C %;LCH.H °;Percentage\n"; // CSV header
         for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // read palette
             // RGB
             save << round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0f) << ";";
             save << round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0f) << ";";
             save << round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0f) << ";";
             // RGB hexa
-            QString hex = QString("%1").arg(((int(round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0f)) & 0xff) << 16)
+            QString hex = QString(" %1").arg(((int(round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0f)) & 0xff) << 16)
                                             + ((int(round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0f)) & 0xff) << 8)
                                             + (int(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0f)) & 0xff), 6, 16,
                                             QChar('0')); // hexa from RGB value
             save << "#" << hex.toUpper().toUtf8().constData() << ";";
             // HSV+C
-            save << ui->openGLWidget_3d->palettes[n].HSV.H << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSV.S << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSV.V << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSV.C << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSV.H * 360.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSV.S * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSV.V * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSV.C * 100.0f << ";";
             // HSL+C
-            save << ui->openGLWidget_3d->palettes[n].HSL.H << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSL.S << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSL.L << ";";
-            save << ui->openGLWidget_3d->palettes[n].HSL.C << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSL.H * 360.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSL.S * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSL.L * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HSL.C * 100.0f << ";";
             // XYZ
-            save << ui->openGLWidget_3d->palettes[n].XYZ.X << ";";
-            save << ui->openGLWidget_3d->palettes[n].XYZ.Y << ";";
-            save << ui->openGLWidget_3d->palettes[n].XYZ.Z << ";";
+            save << ui->openGLWidget_3d->palettes[n].XYZ.X * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].XYZ.Y * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].XYZ.Z * 100.0f << ";";
             // LAB
-            save << ui->openGLWidget_3d->palettes[n].LAB.L << ";";
-            save << ui->openGLWidget_3d->palettes[n].LAB.A << ";";
-            save << ui->openGLWidget_3d->palettes[n].LAB.B << ";";
+            save << ui->openGLWidget_3d->palettes[n].CIELAB.L * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].CIELAB.A * 127.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].CIELAB.B * 127.0f << ";";
             // HWB
-            save << ui->openGLWidget_3d->palettes[n].HWB.H << ";";
-            save << ui->openGLWidget_3d->palettes[n].HWB.W << ";";
-            save << ui->openGLWidget_3d->palettes[n].HWB.B << ";";
+            save << ui->openGLWidget_3d->palettes[n].HWB.H * 360.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HWB.W * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HWB.B * 100.0f << ";";
+            // Hunter LAB
+            save << ui->openGLWidget_3d->palettes[n].HLAB.L * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HLAB.A * 127.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].HLAB.B * 127.0f << ";";
+            // CIE LCH
+            save << ui->openGLWidget_3d->palettes[n].LCH.L * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].LCH.C * 100.0f << ";";
+            save << ui->openGLWidget_3d->palettes[n].LCH.H * 360.0f << ";";
             // percentage
             save << ui->openGLWidget_3d->palettes[n].percentage << "\n";
         }
@@ -529,41 +539,8 @@ void MainWindow::Compute() // analyze image dominant colors
             ui->openGLWidget_3d->palettes[n].RGB.R = palette_vec[n][2] / 255.0f;
             ui->openGLWidget_3d->palettes[n].RGB.G = palette_vec[n][1] / 255.0f;
             ui->openGLWidget_3d->palettes[n].RGB.B = palette_vec[n][0] / 255.0f;
-
-            // HSV
-            float H, S, L, V, C;
-            RGBtoHSV(float(palette_vec[n][2]) / 255.0f, float(palette_vec[n][1]) / 255.0f, float(palette_vec[n][0]) / 255.0f, H, S, V, C); // convert RGB to HSV values
-            ui->openGLWidget_3d->palettes[n].HSV.H = H;
-            ui->openGLWidget_3d->palettes[n].HSV.C = C;
-            ui->openGLWidget_3d->palettes[n].HSV.S = S;
-            ui->openGLWidget_3d->palettes[n].HSV.V = V;
-
-            // HWB
-            float W, B;
-            HSVtoHWB(H, S, V, H, W, B); // convert previously computed HSV values to HWB
-            ui->openGLWidget_3d->palettes[n].HWB.H = H;
-            ui->openGLWidget_3d->palettes[n].HWB.W = W;
-            ui->openGLWidget_3d->palettes[n].HWB.B = B;
-
-            // HSL
-            RGBtoHSL(float(palette_vec[n][2]) / 255.0f, float(palette_vec[n][1]) / 255.0f, float(palette_vec[n][0]) / 255.0f, H, S, L, C); // convert RGB to HSL values
-            ui->openGLWidget_3d->palettes[n].HSL.H = H;
-            ui->openGLWidget_3d->palettes[n].HSL.C = C;
-            ui->openGLWidget_3d->palettes[n].HSL.S = S;
-            ui->openGLWidget_3d->palettes[n].HSL.L = L;
-
-            // XYZ and LAB
-            float X, Y, Z, A;
-            RGBtoXYZ(float(palette_vec[n][2]) / 255.0f, float(palette_vec[n][1]) / 255.0f, float(palette_vec[n][0]) / 255.0f, X, Y, Z); // first convert RGB to XYZ values
-            ui->openGLWidget_3d->palettes[n].XYZ.X = X;
-            ui->openGLWidget_3d->palettes[n].XYZ.Y = Y;
-            ui->openGLWidget_3d->palettes[n].XYZ.Z = Z;
-
-            XYZtoLAB(X, Y, Z, L, A, B); // ... then convert XYZ to LAB values
-            ui->openGLWidget_3d->palettes[n].LAB.L = L;
-            ui->openGLWidget_3d->palettes[n].LAB.A = A;
-            ui->openGLWidget_3d->palettes[n].LAB.B = B;
         }
+        ui->openGLWidget_3d->ConvertPalette(); // convert RGB to other values
     }
     else if (ui->radioButton_k_means->isChecked()) { // K-means method
         cv::Mat1f colors; // to store palette from K-means
@@ -575,41 +552,8 @@ void MainWindow::Compute() // analyze image dominant colors
             ui->openGLWidget_3d->palettes[n].RGB.R = colors(n, 2) / 255.0f;
             ui->openGLWidget_3d->palettes[n].RGB.G = colors(n, 1) / 255.0f;
             ui->openGLWidget_3d->palettes[n].RGB.B = colors(n, 0) / 255.0f;
-
-            // HSV
-            float H, S, L, V, C;
-            RGBtoHSV(float(colors(n, 2)) / 255.0f, float(colors(n, 1)) / 255.0f, float(colors(n, 0)) / 255.0f, H, S, V, C); // convert RGB to HSV values
-            ui->openGLWidget_3d->palettes[n].HSV.H = H;
-            ui->openGLWidget_3d->palettes[n].HSV.C = C;
-            ui->openGLWidget_3d->palettes[n].HSV.S = S;
-            ui->openGLWidget_3d->palettes[n].HSV.V = V;
-
-            // HWB
-            float W, B;
-            HSVtoHWB(H, S, V, H, W, B);
-            ui->openGLWidget_3d->palettes[n].HWB.H = H;
-            ui->openGLWidget_3d->palettes[n].HWB.W = W;
-            ui->openGLWidget_3d->palettes[n].HWB.B = B;
-
-            // HSL
-            RGBtoHSL(float(colors(n, 2)) / 255.0f, float(colors(n, 1)) / 255.0f, float(colors(n, 0)) / 255.0f, H, S, L, C); // convert RGB to HSL values
-            ui->openGLWidget_3d->palettes[n].HSL.H = H;
-            ui->openGLWidget_3d->palettes[n].HSL.C = C;
-            ui->openGLWidget_3d->palettes[n].HSL.S = S;
-            ui->openGLWidget_3d->palettes[n].HSL.L = L;
-
-            // XYZ and LAB
-            float X, Y, Z, A;
-            RGBtoXYZ(float(colors(n, 2)) / 255.0f, float(colors(n, 1)) / 255.0f, float(colors(n, 0)) / 255.0f, X, Y, Z); // convert RGB to XYZ values
-            ui->openGLWidget_3d->palettes[n].XYZ.X = X;
-            ui->openGLWidget_3d->palettes[n].XYZ.Y = Y;
-            ui->openGLWidget_3d->palettes[n].XYZ.Z = Z;
-
-            XYZtoLAB(X, Y, Z, L, A, B); // convert XYZ to LAB values
-            ui->openGLWidget_3d->palettes[n].LAB.L = L;
-            ui->openGLWidget_3d->palettes[n].LAB.A = A;
-            ui->openGLWidget_3d->palettes[n].LAB.B = B;
         }
+        ui->openGLWidget_3d->ConvertPalette(); // convert RGB to other values
 
         //classification.release();
     }
@@ -658,11 +602,11 @@ void MainWindow::ShowResults() // display result images in GUI
 
 void MainWindow::ShowTimer() // show elapsed time
 {
-    int milliseconds = int(timer.elapsed()%1000); // milliseconds
-    int seconds = int(timer.elapsed()/1000%60); // seconds
-    ui->timer->display(QString("%1").arg(seconds, 3, 10, QChar('0'))
+    int milliseconds = int(timer.elapsed() %1000); // milliseconds
+    int seconds = int(timer.elapsed()/1000 %60); // seconds
+    ui->timer->display(QString(" %1").arg(seconds, 3, 10, QChar('0'))
                       + "."
-                      + QString("%1").arg(milliseconds, 3, 10, QChar('0'))); // show elapsed time
+                      + QString(" %1").arg(milliseconds, 3, 10, QChar('0'))); // show elapsed time
 }
 
 void MainWindow::SortPalettes() // sort palette values and create palette image
