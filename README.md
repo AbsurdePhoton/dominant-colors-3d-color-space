@@ -69,7 +69,7 @@ This software should also work under Microsoft Windows: if you tried it successf
 	* Eigen vectors: the fastest - source: http://aishack.in/tutorials/dominant-color/
 	* K-means: a well-known algorithm to aggregate significant data  - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 
-* Click Compute to finish: you end up with 3D view, a quantized image and a palette. The elapsed time is shown on the LCD display
+* Click Compute to finish: you end up with a 3D view, a quantized image and a palette. The elapsed time is shown on the LCD display
 
 ### ACCURACY OF ALGORITHMS
 
@@ -87,7 +87,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 * The Quantized image shows the image transposed to the dominant colors Palette. This way you can visually check if the number of dominant colors chosen at the beginning is sufficient or too wide
 
-* Use the Sort selector to organize colors in several ways, using the values from the color spaces or percentage of use
+* Use the Sort selector to organize colors in several ways, using the values from the color spaces or percentage of use. Note that no algorithm exists to perfectly sort colors: it looks like a simple task but in fact... see here : https://www.alanzucconi.com/2015/09/30/colour-sorting/ 
 
 * You can left-click with your mouse on any color on the Quantized image or the Palette, to get information:
 	* RGB values of picked color, in decimal and hexadecimal
@@ -124,8 +124,8 @@ The two methods seem pretty good at first glance. Even more when you click on th
 * If you want to save the results, click on the "Save results" button. They will be saved with the provided file name + suffixes:
 	* Palette: filename-palette.png
 	* Color space: filename-color-space-XXX.png
-	* Quantized image: filename--quantized.png
-	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage are saved - you can easily import it with LibreOffice Calc!
+	* Quantized image: filename-quantized.png
+	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage of use are saved - you can easily import it with LibreOffice Calc!
 
 ![Screenshot - CSV](screenshots/screenshot-csv.jpg?raw=true)
 	
@@ -148,10 +148,10 @@ The two methods seem pretty good at first glance. Even more when you click on th
 ![Screenshot - HWB](screenshots/exemple-color-space-hwb.jpg?raw=true)
 	* CIE XYZ: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape. Be sure to put the file xyz-space-10deg.csv with the executable, it contains all the coodinates of the boundaries, each corresponding to a light wavelength. The values are converted to the latest CIE white point 10° D65 official values. The only problem is that a dark and lighter version of the same color can be on the same spot, because the horse-shoe is almost on one plane. XYZ is the basis of several CIE color spaces, so they too will be at reference point D65 10°
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
-	* CIE L*a*b*: directly based on CIE XYZ, CIE L*a*b* is largely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+	* CIE L*a*b*: directly based on CIE XYZ, CIE L*a*b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 ![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
 	* Hunter Lab: directly computed from CIE XYZ, the ancestor of L*a*b*. Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
-![Screenshot - Hunter Lab](screenshots/exemple-color-hlab.jpg?raw=true)
+![Screenshot - Hunter Lab](screenshots/exemple-color-space-hlab.jpg?raw=true)
 	* Color Wheel: the good ol' one, already used in my previous tool, but this time in 3D, even if it is only on one plane. This one is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
 ![Screenshot - Wheel](screenshots/exemple-color-space-wheel.jpg?raw=true)
 
