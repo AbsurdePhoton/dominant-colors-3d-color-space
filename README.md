@@ -150,7 +150,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space - a variant is the RGB triangle, similar to CIE xyY color space
 ![Screenshot - RGB](screenshots/exemple-color-space-rgb.jpg?raw=true)
 
-	* HSV, HSL, HCV, HCL: these spaces are based on Hue. The difference between them is they don't use exactly the same values: Lightness, "Value" (similar to Lightness), Chroma, and Saturation. The global shape of these spaces is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
+	* HSV, HSL, HCV, HCL: these spaces are based on Hue. The difference between them is they don't use exactly the same units: Lightness, "Value" (similar to Lightness but not exactly the same), Chroma, and Saturation. The global shape of these spaces is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
 ![Screenshot - HSL](screenshots/exemple-color-space-hsv.jpg?raw=true)
 
 	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a percentage of White and Black values. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
