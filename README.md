@@ -165,11 +165,11 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
   * CIE L* a* b*: directly based on CIE XYZ, CIE L* a* b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L* a* b* in cylindrical coordinates. CIE XYZ and L* a* b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 	
-![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
+![Screenshot - Lab](screenshots/exemple-color-space-lab.jpg?raw=true)
 
-  * CIE L*u*v*: another conversion from CIE XYZ, CIE L*u*v* is a bit different, focusing on perceptual uniformity. In the produced .CSV files, you will also find CIE LCHuv values, which is CIE L*u*v* in cylindrical coordinates. Information here: https://en.wikipedia.org/wiki/CIELUV
+  * CIE L* u* v*: another conversion from CIE XYZ, CIE L* u* v* is a bit different, focusing on perceptual uniformity. In the produced .CSV files, you will also find CIE LCHuv values, which is CIE L* u* v* in cylindrical coordinates. Information here: https://en.wikipedia.org/wiki/CIELUV
 	
-![Screenshot - L*u*v*](screenshots/exemple-color-space-luv.jpg?raw=true)
+![Screenshot - Luv](screenshots/exemple-color-space-luv.jpg?raw=true)
 
   * Hunter Lab: directly computed from CIE XYZ, it is in fact the ancestor of L*a*b*! Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
 	
