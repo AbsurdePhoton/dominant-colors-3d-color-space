@@ -135,7 +135,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* Palette: filename-palette.png
 	* Color space: filename-color-space-XXX.png
 	* Quantized image: filename-quantized.png
-	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage of use are saved - you can easily import it with LibreOffice Calc!
+	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage of use are saved - you can easily import it with LibreOffice Calc! Nota: I forced the decimal separator to be a dot, but for french people for example (like me) it is a comma: be sure to edit the .csv file to replace dots with commas if you are in this case before importing. It is for the same reason that the separator in the .csv file is a semicolon and not a comma...
 
 ![Screenshot - CSV](screenshots/screenshot-csv.jpg?raw=true)
 	
