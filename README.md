@@ -143,43 +143,43 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 ![Screenshot - Color Spaces](screenshots/screenshot-color-space.jpg?raw=true)
 	
-* The hardest part to code! Lots of maths, lots of trial-and-error. I spent a LOT of time checking my results against online conversion tools... anyway if you find errors or misunderstandings, please let me know
+* The hardest part to code! Lots of maths, lots of trial-and-error. I spent a LOT of time checking my results against online conversion tools... anyway if you find errors or misunderstandings, please let me know. Bruce Lindbloom's site was of great help! http://www.brucelindbloom.com/index.html?Math.html
 
 * You can visualize the dominant colors palette in any of the following color spaces:
 
-	* RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space - a variant is the RGB triangle, similar to CIE xyY color space
+  * RGB: just a cube with Red, Green and Blue as axes. Simple to understand, all the details here: https://en.wikipedia.org/wiki/RGB_color_space - a variant is the RGB triangle, similar to CIE xyY color space
 	
 ![Screenshot - RGB](screenshots/exemple-color-space-rgb.jpg?raw=true)
 
-	* HSV, HSL, HCV, HCL: these spaces are based on Hue. The difference between them is they don't use exactly the same units: Lightness, "Value" (similar to Lightness but not exactly the same), Chroma, and Saturation. The global shape of these spaces is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
+  * HSV, HSL, HCV, HCL: these spaces are based on Hue. The difference between them is they don't use exactly the same units: Lightness, "Value" (similar to Lightness but not exactly the same), Chroma, and Saturation. The global shape of these spaces is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
 	
 ![Screenshot - HSV](screenshots/exemple-color-space-hsv.jpg?raw=true)
 
-	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a percentage of White and Black values. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
+  * HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a percentage of White and Black values. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
 	
 ![Screenshot - HWB](screenshots/exemple-color-space-hwb.jpg?raw=true)
 
-	* CIE XYZ and xyY: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape in the xyY version. The white point is defined at CIE D65. XYZ is the basis of several CIE color spaces, so they will be converted to reference whitepoint D65, too (more here : https://en.wikipedia.org/wiki/Illuminant_D65). Also, the color boundaries shown on all CIE spaces are from the CIE 2° CMFs values (got them on this site : http://cvrl.ucl.ac.uk/cmfs.htm), showing the limits of visible colors calculated from wavelength values of light in the 390 (violet) to 700 nm (red) range. In some color spaces the color values can exceed the visible spectrum for humans, so these "colors" don't really exist in the real world: they are qualified as "imaginary"
+  * CIE XYZ and xyY: an imaginary color space, which I chose to represent with the famous horse-shoe colored shape in the xyY version. The white point is defined at CIE D65. XYZ is the basis of several CIE color spaces, so they will be converted to reference whitepoint D65, too (more here : https://en.wikipedia.org/wiki/Illuminant_D65). Also, the color boundaries shown on all CIE spaces are from the CIE 2° CMFs values (got them on this site : http://cvrl.ucl.ac.uk/cmfs.htm), showing the limits of visible colors calculated from wavelength values of light in the 390 (violet) to 700 nm (red) range. In some color spaces the color values can exceed the visible spectrum for humans, so these "colors" don't really exist in the real world: they are qualified as "imaginary"
 	
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
 
-	* CIE L* a* b*: directly based on CIE XYZ, CIE L* a* b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L* a* b* in cylindrical coordinates. CIE XYZ and L* a* b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+  * CIE L* a* b*: directly based on CIE XYZ, CIE L* a* b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L* a* b* in cylindrical coordinates. CIE XYZ and L* a* b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 	
 ![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
 
-	* CIE L*u*v*: another conversion from CIE XYZ, CIE L*u*v* is a bit different, focusing on perceptual uniformity. In the produced .CSV files, you will also find CIE LCHuv values, which is CIE L*u*v* in cylindrical coordinates. Information here: https://en.wikipedia.org/wiki/CIELUV
+  * CIE L*u*v*: another conversion from CIE XYZ, CIE L*u*v* is a bit different, focusing on perceptual uniformity. In the produced .CSV files, you will also find CIE LCHuv values, which is CIE L*u*v* in cylindrical coordinates. Information here: https://en.wikipedia.org/wiki/CIELUV
 	
 ![Screenshot - L*u*v*](screenshots/exemple-color-space-luv.jpg?raw=true)
 
-	* Hunter Lab: directly computed from CIE XYZ, it is in fact the ancestor of L*a*b*! Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
+  * Hunter Lab: directly computed from CIE XYZ, it is in fact the ancestor of L*a*b*! Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
 	
 ![Screenshot - Hunter Lab](screenshots/exemple-color-space-hlab.jpg?raw=true)
 
-	* LMS: based on eye cones response at Long, Medium and Short wavelengths. All the info there: https://en.wikipedia.org/wiki/LMS_color_space
+  * LMS: based on eye cones response at Long, Medium and Short wavelengths. All the info there: https://en.wikipedia.org/wiki/LMS_color_space
 	
 ![Screenshot - LMS](screenshots/exemple-color-space-lms.jpg?raw=true)
 
-	* Color Wheel: the good ol' additive light representation, already used in my previous tool but this time in 3D! (even if it is only on one plane). It is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
+  * Color Wheel: the good ol' additive light representation, already used in my previous tool but this time in 3D! (even if it is only on one plane). It is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
 	
 ![Screenshot - Wheel](screenshots/exemple-color-space-wheel.jpg?raw=true)
 
