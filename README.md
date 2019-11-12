@@ -163,7 +163,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
 
-	* CIE L\*a\*b\*: directly based on CIE XYZ, CIE L*a*b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L*a*b* in cylindrical coordinates. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+	* CIE L\*a\*b*: directly based on CIE XYZ, CIE L*a*b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L*a*b* in cylindrical coordinates. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 	
 ![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
 
