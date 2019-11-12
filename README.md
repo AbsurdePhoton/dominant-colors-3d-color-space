@@ -10,7 +10,7 @@
 * v0 - launch
 * v0.1 - more accurate and several color spaces added
 * v1 - checked conversion formulas against online calculators: all good!
-* v2 - added interesting color spaces + lettered axes and visible specter boundaries in 3d view, color conversion button + select/hide colors + bug-fixed Eigen method that was limited to 128 levels + palette cleaning + many bug fixes
+* v2 - added interesting color spaces + lettered axes and visible specter boundaries in 3d view + color conversion button + select/hide colors + bug-fixed Eigen method that was limited to 128 levels + palette cleaning + many other bug fixes
 <br/>
 <br/>
 
