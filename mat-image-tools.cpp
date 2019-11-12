@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v1.9 - 2019/07/08
+ * v2.0 - 2019/10/28
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -14,9 +14,9 @@
  * Noise reduction quality
  * Gray gradients
  * Red-cyan anaglyph tints
+ * Count number of RGB colors in image
  *
 #-------------------------------------------------*/
-
 
 #include <QPixmap>
 
@@ -596,3 +596,16 @@ Mat AnaglyphTint(const Mat & source, const int &tint) // change tint of image to
     return dest;
 }
 
+//// Number of colors in image
+
+int CountRGBUniqueValues(const cv::Mat &image) // count number of RGB colors in image
+{
+    std::set<int> unique;
+
+    for (Vec3b &p : cv::Mat_<Vec3b>(image)) { // iterate over pixels (assummes: CV_8UC3 !)
+        int n = (p[0] << 16) | (p[1] << 8) | (p[2]); // "hash" representation of the pixel
+        unique.insert(n);
+    }
+
+    return unique.size();
+}

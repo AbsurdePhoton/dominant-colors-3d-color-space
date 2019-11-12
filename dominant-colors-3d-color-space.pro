@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0.1 - 2019/10/24
+#                v2 - 2019/11/08
 #
 #-------------------------------------------------
 
@@ -25,13 +25,15 @@ SOURCES += main.cpp\
         mat-image-tools.cpp \
         dominant-colors.cpp \
         openglwidget.cpp \
-        opengl-draw.cpp
+        opengl-draw.cpp \
+        color-spaces.cpp
 
 HEADERS  += mainwindow.h \
             mat-image-tools.h \
             dominant-colors.h \
             openglwidget.h \
-            opengl-draw.h
+            opengl-draw.h \
+            color-spaces.h
 
 FORMS    += mainwindow.ui
 

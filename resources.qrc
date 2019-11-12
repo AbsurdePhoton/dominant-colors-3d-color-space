@@ -2,12 +2,14 @@
 <qresource>
   <file>./icons/3d-quality.png</file>
   <file>./icons/3d-space.png</file>
+  <file>./icons/3d-strip-triangles.png</file>
   <file>./icons/3d-widget.png</file>
   <file>./icons/absurdephoton.png</file>
   <file>./icons/axis-3d.png</file>
   <file>./icons/color.png</file>
   <file>./icons/combobox-arrow.png</file>
   <file>./icons/compute.png</file>
+  <file>./icons/exit.png</file>
   <file>./icons/image.png</file>
   <file>./icons/light-off.png</file>
   <file>./icons/light-on.png</file>
@@ -15,5 +17,6 @@
   <file>./icons/quit.png</file>
   <file>./icons/save.png</file>
   <file>./icons/sphere.png</file>
+  <file>./icons/undo.png</file>
 </qresource>
 </RCC>

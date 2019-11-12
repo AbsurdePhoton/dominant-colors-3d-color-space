@@ -1,68 +1,143 @@
 /*#-------------------------------------------------
 #
-#          Draw primitives for OpenGL
+#          Draw functions for OpenGL
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v0 - 2019/10/24
+#                v1 - 2019/11/08
 #
 #   - circles
 #   - cones
 #   - spheres
-#   - XYZ color space
+#   - CMF in color spaces
 #
 #-------------------------------------------------*/
 
 #include <QtOpenGL>
+#include "opencv2/opencv.hpp"
 #include "dominant-colors.h"
+#include "color-spaces.h"
 #include "mat-image-tools.h"
+#include "opengl-draw.h"
 
 using namespace std;
+using namespace cv;
 
 ///////////////////////////////////////////////
-//// Draw from file
+//// Draw CMF in color spaces
 ///////////////////////////////////////////////
 
-void XYZPlotFromCSV(std::string name, const float &size3d) // draw XYZ color space
+void DrawCMFinXYZ(const float &size3d, const bool spectrum_locus) // draw Color Matching Functions in XYZ color space
 {
-    std::string line; // line to read in text file
-    ifstream file; // file to read
-    file.open(name); // read color file file
-    setlocale(LC_ALL, "C"); // for numeric separator=dot instead of comma when using stof()
+    double R, G, B, X, Y, Z, W;
 
-    if (file) { // if successfully read
-        getline(file, line); // jump csv header line
-        size_t pos; // index for find function
-        std::string s; // used for item extraction
-        float R, G, B, W, X, Y, Z;
-        glBegin(GL_LINE_STRIP); // continuous lines
-            glLineWidth(32); // width of line
-            while (getline(file, line)) { // read each line of text file: X Y Z wavelength
-                pos = 0; // find index at the beginning of the line
-                int pos2 = line.find(";", pos); // find first semicolon char
-                s = line.substr(pos, pos2 - pos); // extract X value
-                X = std::stof(s); // X
-                pos = pos2 + 1; // next char
-                pos2 = line.find(";", pos); // find second semicolon char
-                s = line.substr(pos, pos2 - pos); // extract Y value
-                Y = std::stof(s); // Y
-                pos = pos2 + 1; // next char
-                pos2 = line.find(";", pos); // find third semicolon char
-                s = line.substr(pos, pos2 - pos); // extract Z value
-                Z = std::stof(s); // Z
-                s = line.substr(pos2 + 1, line.length() - pos2); // color wavelength is at the end of the line
-                W = std::stof(s); // wavelength
+    glLineWidth(4); // width of line
+    glBegin(GL_LINE_STRIP); // continuous lines
+    for (int w = 0; w < wavelength_XYZ_nb; w++) {
+        W = wavelength_XYZ[w][0];
 
-                SpectralColorToRGB(W, R, G, B); // convert wavelength to RGB
-                if (R + G + B != 0) { // some wavelengths are not visible
-                    glColor3d(R, G, B); // change color to computed RGB
-                    glVertex3f(Y * size3d, -X * size3d, Z * size3d); // add vertex
-                }
-            }
-        glEnd();
+        if ((W >= 390) and (W <= 700)) { // some wavelengths are not visible - visible range 400-700nm
+            WavelengthToXYZ(W, X, Y, Z);
+            XYZtoRGB(X, Y, Z, R, G, B); // second option : convert XYZ to RGB
 
-        file.close(); // close text file
+            double sum;
+            if (spectrum_locus)
+                sum = X + Y + Z;
+            else
+                sum = 1;
+
+            glColor3d(R, G, B); // change color to computed RGB
+            if (spectrum_locus)
+                glVertex3f(Y / sum * size3d, -X / sum * size3d, Z / sum * size3d); // add vertex
+            else
+                glVertex3f(X / sum * size3d, -Y / sum * size3d, Z / sum * size3d); // add vertex
+        }
     }
+    glEnd();
+}
+
+void DrawCMFinLuv(const float &size3d) // draw Color Matching Functions in L*u*v* color space
+{
+    double W, X, Y, Z, R, G, B, L, u, v;
+
+    glLineWidth(4);
+    glBegin(GL_LINE_STRIP);
+        for (int w = 0; w < wavelength_XYZ_nb; w++) {
+            W = wavelength_XYZ[w][0];
+
+            if ((W >= 390) and (W <= 700)) {
+                WavelengthToXYZ(W, X, Y, Z);
+                XYZtoRGB(X, Y, Z, R, G, B); // convert XYZ to RGB
+                XYZtoLuv(X, Y, Z, L, u, v); // convert XYZ to Luv
+
+                glColor3d(R, G, B); // change color to computed RGB
+                glVertex3f(v * size3d, -u * size3d, L * size3d); // add vertex
+            }
+        }
+    glEnd();
+}
+
+void DrawCMFinLab(const float &size3d) // draw Color Matching Functions in L*a*b* color space
+{
+    double W, X, Y, Z, R, G, B, L, a, b;
+
+    glLineWidth(4);
+    glBegin(GL_LINE_STRIP);
+        for (int w = 0; w < wavelength_XYZ_nb; w++) {
+            W = wavelength_XYZ[w][0];
+
+            if ((W >= 390) and (W <= 700)) {
+                WavelengthToXYZ(W, X, Y, Z);
+                XYZtoRGB(X, Y, Z, R, G, B); // convert XYZ to RGB
+                XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to L*a*b*
+
+                glColor3d(R, G, B); // change color to computed RGB
+                glVertex3f(-a * size3d, -b * size3d, L * size3d); // add vertex
+            }
+        }
+    glEnd();
+}
+
+void DrawCMFinLMS(const float &size3d) // draw Color Matching Functions in LMS color space
+{
+    double W, X, Y, Z, R, G, B, L, M, S;
+
+    glLineWidth(4);
+    glBegin(GL_LINE_STRIP);
+        for (int w = 0; w < wavelength_XYZ_nb; w++) {
+            W = wavelength_XYZ[w][0];
+
+            if ((W >= 390) and (W <= 700)) {
+                WavelengthToXYZ(W, X, Y, Z);
+                XYZtoRGB(X, Y, Z, R, G, B); // convert XYZ to RGB
+                XYZtoLMS(X, Y, Z, L, M, S); // convert XYZ to LMS
+
+                glColor3d(R, G, B); // change color to computed RGB
+                glVertex3f(L * size3d, -M * size3d, S * size3d); // add vertex
+            }
+        }
+    glEnd();
+}
+
+void DrawCMFinHLAB(const float &size3d) // draw Color Matching Functions in Hunter LAB color space
+{
+    double W, X, Y, Z, R, G, B, L, a, b;
+
+    glLineWidth(4);
+    glBegin(GL_LINE_LOOP);
+        for (int w = 0; w < wavelength_XYZ_nb; w++) {
+            W = wavelength_XYZ[w][0];
+
+            if ((W >= 443) and (W <= 630)) {
+                WavelengthToXYZ(W, X, Y, Z);
+                XYZtoRGB(X, Y, Z, R, G, B); // convert XYZ to RGB
+                XYZtoHLAB(X, Y, Z, L, a, b); // convert XYZ to Hunter LAB
+
+                glColor3d(R, G, B); // change color to computed RGB
+                glVertex3f(-a * size3d, -b * size3d, L * size3d); // add vertex
+            }
+        }
+    glEnd();
 }
 
 ///////////////////////////////////////////////
@@ -91,6 +166,23 @@ void DrawCircleXY(const float &center_x, const float &center_y, const float &cen
         {
             float alpha = 2.0f * Pi * float(i) / float(segments); //current angle
             glVertex3d(radius * cos(alpha) + center_x, radius * sin(alpha) + center_y, center_z); // add vertex
+        }
+    glEnd();
+}
+
+void DrawCircleArcXY(const float &center_x, const float &center_y, const float &center_z, const float &radius, const int &segments, const float &begin, const float &end, const float &R, const float &G, const float &B, const float &width)
+{
+    float arc_begin = begin / 360.0 * 2 * Pi;
+    float arc_end = end / 360.0 * 2 * Pi;
+
+    glColor3d(R, G, B); // color to draw
+    glLineWidth(width); // line width
+    glBegin(GL_LINE_STRIP); // simple line with ends connected
+        for (int i = 0; i < segments; i++) // for n segments
+        {
+            float alpha = 2.0f * Pi * float(i) / float(segments); //current angle
+            if ((alpha >= arc_begin) and (alpha <= arc_end))
+                glVertex3d(radius * cos(alpha) + center_x, radius * sin(alpha) + center_y, center_z); // add vertex
         }
     glEnd();
 }
@@ -159,13 +251,13 @@ void DrawConeZ(const float &center_x, const float &center_y, const float &center
 }
 
 ///////////////////////////////////////////////
-//// Sphere
+//// Sphere by recursive triangles subdivision
 ///////////////////////////////////////////////
 
 #define X .525731112119133606 // pre-calculated matrix
 #define Z .850650808352039932
 
-static GLfloat vdata[12][3] = {
+static float vdata[12][3] = {
     {-X, 0.0, Z}, {X, 0.0, Z}, {-X, 0.0, -Z}, {X, 0.0, -Z},
     {0.0, Z, X}, {0.0, Z, -X}, {0.0, -Z, X}, {0.0, -Z, -X},
     {Z, X, 0.0}, {-Z, X, 0.0}, {Z, -X, 0.0}, {-Z, -X, 0.0}
@@ -176,13 +268,13 @@ static GLuint tindices[20][3] = {
     {7,10,3}, {7,6,10}, {7,11,6}, {11,0,6}, {0,1,6},
     {6,1,10}, {9,0,11}, {9,11,2}, {9,2,5}, {7,2,11} };
 
-void normalize(GLfloat *a) // normalize a vector
+void normalize(float *a) // normalize a vector
 {
-    GLfloat d = sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]); // euclidian distance
+    float d = sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]); // euclidian distance
     a[0]/=d; a[1]/=d; a[2]/=d; // normalized
 }
 
-void DrawTri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r, float x, float y, float z) // used to subdivide surfaces
+void DrawTri(float *a, float *b, float *c, int div, float r, float x, float y, float z) // used to subdivide surfaces
 {
     if (div <= 0) {
         glNormal3fv(a);
@@ -192,7 +284,7 @@ void DrawTri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r, float x, floa
         glNormal3fv(c);
         glVertex3f(c[0]*r + x, c[1]*r - y, c[2]*r + z);
     } else {
-        GLfloat ab[3], ac[3], bc[3];
+        float ab[3], ac[3], bc[3];
         for (int i = 0; i < 3; i++) { // half
             ab[i] = (a[i]+b[i]) / 2.0;
             ac[i] = (a[i]+c[i]) / 2.0;
@@ -208,11 +300,120 @@ void DrawTri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r, float x, floa
     }
 }
 
-void DrawSphere(int ndiv, float radius, float x, float y, float z, float r, float g, float b) // draw a sphere with ndiv as number of subdivisions
+void DrawSphere(const int &ndiv, const float &radius, const float &x, const float &y, const float &z, const float &r, const float &g, const float &b) // draw a sphere with ndiv as number of subdivisions
 {
     glColor3d(r,g,b); // change color
     glBegin(GL_TRIANGLES); // draw triangles
         for (int i = 0; i < 20; i++) // 20 times
             DrawTri(vdata[tindices[i][0]], vdata[tindices[i][1]], vdata[tindices[i][2]], ndiv, radius, x, y, z); // recursive drawing with triangle subdivision with sphere data
     glEnd();
+}
+
+///////////////////////////////////////////////
+//// Matrix to lines
+///////////////////////////////////////////////
+
+void DrawLinesFromMatrix(const Mat &matrix, const float &x0, const float &y0, const float &z0, const float &scale, const float &R, const float &G, const float &B, const float &width)
+{
+    glColor3f(R,G,B);
+    glLineWidth(width);
+    glBegin(GL_LINES);
+        for (int x = 0; x < matrix.cols; x++) // down
+            for (int y = 0; y < matrix.rows - 1; y++)
+                if ((matrix.at<uchar>(y, x) != 0) & (matrix.at<uchar>(y + 1, x) != 0)) {
+                    glVertex3f(scale * x + x0, -scale * y + y0, z0);
+                    glVertex3f(scale * x + x0, -scale * (y + 1) + y0, z0);
+                }
+        for (int x = 0; x < matrix.cols - 1; x++) // right
+            for (int y = 0; y < matrix.rows; y++)
+                if ((matrix.at<uchar>(y, x) != 0) & (matrix.at<uchar>(y, x + 1) != 0)) {
+                    glVertex3f(scale * x + x0, -scale * y + y0, z0);
+                    glVertex3f(scale * (x + 1) + x0, -scale * y + y0, z0);
+                }
+        for (int x = 0; x < matrix.cols - 1; x++) // down-right
+            for (int y = 0; y < matrix.rows - 1; y++)
+                if ((matrix.at<uchar>(y, x) != 0) & (matrix.at<uchar>(y + 1, x + 1) != 0) & (matrix.at<uchar>(y, x + 1) == 0) & (matrix.at<uchar>(y + 1, x) == 0)) {
+                    glVertex3f(scale * x + x0, -scale * y + y0, z0);
+                    glVertex3f(scale * (x + 1) + x0, -scale * (y + 1) + y0, z0);
+                }
+        for (int x = 1; x < matrix.cols; x++) // down-left
+            for (int y = 0; y < matrix.rows - 1; y++)
+                if ((matrix.at<uchar>(y, x) != 0) & (matrix.at<uchar>(y + 1, x - 1) != 0) & (matrix.at<uchar>(y, x - 1) == 0) & (matrix.at<uchar>(y + 1, x) == 0)) {
+                    glVertex3f(scale * x + x0, -scale * y + y0, z0);
+                    glVertex3f(scale * (x - 1) + x0, -scale * (y + 1) + y0, z0);
+                }
+    glEnd();
+
+        // isolated dots
+        for (int x = 0; x < matrix.cols; x++) // down-left
+            for (int y = 0; y < matrix.rows; y++)
+                if ((matrix.at<uchar>(y, x) != 0) & (matrix.at<uchar>(y - 1, x - 1) == 0) & (matrix.at<uchar>(y - 1, x) == 0) & (matrix.at<uchar>(y - 1, x + 1) == 0)
+                        & (matrix.at<uchar>(y, x - 1) == 0) & (matrix.at<uchar>(y, x + 1) == 0)
+                        & (matrix.at<uchar>(y + 1, x - 1) == 0) & (matrix.at<uchar>(y + 1, x) == 0) & (matrix.at<uchar>(y + 1, x + 1) == 0)) {
+                    //DrawCircleXY(scale * x + x0, scale * y + y0, z0 , 4, 10, 1, 1, 1, 4);
+                    DrawSphere(3, width / 2.0, scale * x + x0, -scale * y - y0, z0, R, G, B);
+                }
+
+}
+
+///////////////////////////////////////////////
+//// Draw text from string
+///////////////////////////////////////////////
+
+void DrawChar(const uchar ch, const float &x0, const float &y0, const float &z0, const float &scale, const float &R, const float &G, const float &B, const float &width)
+{
+    if ((ch < characters_begin) or (ch > characters_end))
+            return;
+    int c = ch - characters_begin;
+
+    glColor3f(R,G,B);
+    glLineWidth(width);
+    glBegin(GL_LINES);
+        for (int x = 0; x < characters_matrix_cols; x++) // down
+            for (int y = 0; y < characters_matrix_rows - 1; y++)
+                if ((characters[c].data[x][y] != 0) & (characters[c].data[x][y + 1] != 0)) {
+                    glVertex3f(scale * x + x0, scale * y + y0, z0);
+                    glVertex3f(scale * x + x0, scale * (y + 1) + y0, z0);
+                }
+        for (int x = 0; x < characters_matrix_cols - 1; x++) // right
+            for (int y = 0; y < characters_matrix_rows; y++)
+                if ((characters[c].data[x][y] != 0) & (characters[c].data[x + 1][y] != 0)) {
+                    glVertex3f(scale * x + x0, scale * y + y0, z0);
+                    glVertex3f(scale * (x + 1) + x0, scale * y + y0, z0);
+                }
+        for (int x = 0; x < characters_matrix_cols - 1; x++) // down-right
+            for (int y = 0; y < characters_matrix_rows - 1; y++)
+                if ((characters[c].data[x][y] != 0) & (characters[c].data[x + 1][y + 1] != 0) & (characters[c].data[x + 1][y] == 0) & (characters[c].data[x][y + 1] == 0)) {
+                    glVertex3f(scale * x + x0, scale * y + y0, z0);
+                    glVertex3f(scale * (x + 1) + x0, scale * (y + 1) + y0, z0);
+                }
+        for (int x = 1; x < characters_matrix_cols; x++) // down-left
+            for (int y = 0; y < characters_matrix_rows - 1; y++)
+                if ((characters[c].data[x][y] != 0) & (characters[c].data[x - 1][y + 1] != 0) & (characters[c].data[x - 1][y] == 0) & (characters[c].data[x][y + 1] == 0)) {
+                    glVertex3f(scale * x + x0, scale * y + y0, z0);
+                    glVertex3f(scale * (x - 1) + x0, scale * (y + 1) + y0, z0);
+                }
+    glEnd();
+
+        // isolated dots
+        for (int x = 0; x < characters_matrix_cols; x++) // down-left
+            for (int y = 0; y < characters_matrix_rows; y++)
+                if ((characters[c].data[x][y] != 0)
+                        & (characters[c].data[x - 1][y - 1] == 0) & (characters[c].data[x][y - 1] == 0) & (characters[c].data[x + 1][y - 1] == 0)
+                        & (characters[c].data[x - 1][y] == 0) & (characters[c].data[x + 1][y] == 0)
+                        & (characters[c].data[x - 1][y + 1] == 0) & (characters[c].data[x][y + 1] == 0) & (characters[c].data[x + 1][y + 1] == 0)) {
+                    //DrawCircleXY(scale * x + x0, scale * y + y0, z0 , 4, 10, 1, 1, 1, 4);
+                    DrawSphere(3, width, scale * x + x0, -scale * y - y0, z0, R, G, B);
+                }
+
+}
+
+void DrawText(const std::string &text, const float &x0, const float &y0, const float &z0, const float &scale, const float &R, const float &G, const float &B, const float &width)
+{
+    float xCurrent = 0;
+
+    for (int n = 0; n < text.length(); n++) {
+        DrawChar(text[n], x0, y0 + xCurrent, z0, scale, R, G, B, width);
+        xCurrent += scale * characters_matrix_cols;
+    }
 }

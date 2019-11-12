@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#               v0.1 - 2019/10/24
+#               v2 - 2019/11/08
 #     - Lights
 #     - Mouse control :
 #         . zoom with wheel
@@ -18,6 +18,8 @@
 #
 # * Public access to zoom, position and rotation
 #
+# * Draw values in color spaces
+#
 #--------------------------------------------------------------*/
 
 #ifndef OPENGLWIDGET_H
@@ -28,6 +30,7 @@
 #include <QOpenGLTexture>
 #include "opencv2/opencv.hpp"
 #include "dominant-colors.h"
+#include "color-spaces.h"
 
 class openGLWidget : public QOpenGLWidget
 {
@@ -37,7 +40,7 @@ public:
     explicit openGLWidget(QWidget *parent = 0);
     ~openGLWidget();
 
-    struct_palette palettes[1000]; // 1000 is very large !
+    struct_palette palettes[5000]; // 5000 is very large !
     int nb_palettes; // number of colors in palette
 
     int sphere_size; // size factor for spheres
@@ -58,7 +61,9 @@ public:
     float size3d;
 
     void Capture(); // take a snapshot of rendered 3D scene
-    void ConvertPalette();
+    void ConvertPaletteFromRGB(); // from a RGB value, convert all palette to all color spaces
+    void ConvertPaletteFromLAB(); // from a CIE L*a*b* value, convert all palette to all color spaces
+    void DrawSpherePlus(const int &ndiv, const float &radius, const float &x, float y, float z, float r, float g, float b, const bool circle, const bool visible); // draw a sphere with a white circle if colorChosen equal (r,g,b)
 
 
 protected:
@@ -90,7 +95,7 @@ public slots:
     void SetShiftLeft();
     void SetShiftRight();
 
-    void SetSphereSize(int size);
+    void SetSphereSize(int size); // factor to increase or decrease sphere size
 
 
 signals:
@@ -105,8 +110,6 @@ signals:
     void zoomChanged(double zoom); // zoom signal
     void sphereSizeChanged(int size); // zoom signal
 
-    void verticesChanged(int nb_Vertices); // number of vertices signal
-
 
 private:
 
@@ -114,4 +117,3 @@ private:
 };
 
 #endif // OPENGLWIDGET_H
-

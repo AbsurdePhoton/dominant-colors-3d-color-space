@@ -3,7 +3,7 @@
  * OpenCV image tools library
  * Author: AbsurdePhoton
  *
- * v1.9 - 2019/07/08
+ * v2.0 - 2019/10/28
  *
  * Convert mat images to QPixmap or QImage and vice-versa
  * Brightness, Contrast, Gamma, Equalize, Color Balance
@@ -14,6 +14,7 @@
  * Noise reduction quality
  * Gray gradients
  * Red-cyan anaglyph tints
+ * Count number of RGB colors in image
  *
 #-------------------------------------------------*/
 
@@ -24,7 +25,7 @@
 #include <opencv2/ximgproc.hpp>
 #include <QImage>
 
-const float Pi = atan(1)*4;
+const double Pi = atan(1.0)*4;
 enum shift_direction{shift_up=1, shift_right, shift_down, shift_left}; // directions for shift function
 enum gradientType {gradient_flat, gradient_linear, gradient_doubleLinear, gradient_radial}; // gradient types
 enum curveType {curve_linear, curve_cosinus2, curve_sigmoid, curve_cosinus, curve_cos2sqrt,
@@ -64,5 +65,7 @@ void GradientFillGray(const int &gradient_type, cv::Mat &img, const cv::Mat &msk
                       const int &curve, cv::Rect area = cv::Rect(0, 0, 0, 0)); // fill a 1-channel image with the mask converted to gray gradients
 
 cv::Mat AnaglyphTint(const cv::Mat & source, const int &tint); // change tint of image to avoid disturbing colors in red-cyan anaglyph mode
+
+int CountRGBUniqueValues(const cv::Mat &image); // count number of RGB colors in image
 
 #endif // MATIMAGETOOLS_H
