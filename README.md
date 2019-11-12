@@ -104,7 +104,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 * CTRL + left mouse button on a color in the Palette or Quantized image will select the color: it is identified with a white circle in the 3D view. Do it again to deselect. When a color is selected it is also shown on the Quantized image
 
-* ALT + left mouse button on a color will hide it from the 3D view. Do it again to make it visible
+* ALT + left mouse button on a color will hide it from the 3D view. Do it again to get it back into view. This can be useful when a color sphere hides many other because its percentage of use is high (it happens a lot with images with a strong dominant color, e.g. very dark photos)
 
 ### 3D VIEW
 
