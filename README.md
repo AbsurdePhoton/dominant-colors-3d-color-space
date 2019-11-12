@@ -153,7 +153,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 	* HSV, HSL, HCV, HCL: these spaces are based on Hue. The difference between them is they don't use exactly the same units: Lightness, "Value" (similar to Lightness but not exactly the same), Chroma, and Saturation. The global shape of these spaces is a cylinder or cone. More here: https://en.wikipedia.org/wiki/HSL_and_HSV
 	
-![Screenshot - HSL](screenshots/exemple-color-space-hsv.jpg?raw=true)
+![Screenshot - HSV](screenshots/exemple-color-space-hsv.jpg?raw=true)
 
 	* HWB: more simple to understand than HSV or HSL, HWB is also based on Hue, but with a percentage of White and Black values. The space shape is conical. See here: https://en.wikipedia.org/wiki/HWB_color_model
 	
@@ -163,13 +163,13 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	
 ![Screenshot - XYZ](screenshots/exemple-color-space-xyz.jpg?raw=true)
 
-	* CIE L\*a\*b*: directly based on CIE XYZ, CIE L*a*b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L*a*b* in cylindrical coordinates. CIE XYZ and L*a*b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
+	* CIE L* a* b*: directly based on CIE XYZ, CIE L* a* b* is widely used, for exemple in Photoshop. It is pretty easy to understand and visualize. In the output .CSV files, you will also find CIE LCHab values, which is CIE L* a* b* in cylindrical coordinates. CIE XYZ and L* a* b* information here: https://en.wikipedia.org/wiki/CIE_1931_color_space
 	
 ![Screenshot - L*a*b*](screenshots/exemple-color-space-lab.jpg?raw=true)
 
 	* CIE L*u*v*: another conversion from CIE XYZ, CIE L*u*v* is a bit different, focusing on perceptual uniformity. In the produced .CSV files, you will also find CIE LCHuv values, which is CIE L*u*v* in cylindrical coordinates. Information here: https://en.wikipedia.org/wiki/CIELUV
 	
-![Screenshot - L*a*b*](screenshots/exemple-color-space-luv.jpg?raw=true)
+![Screenshot - L*u*v*](screenshots/exemple-color-space-luv.jpg?raw=true)
 
 	* Hunter Lab: directly computed from CIE XYZ, it is in fact the ancestor of L*a*b*! Its shape is similar to La*b* with differences mainly in blues and yellows. Hunter Lab information here: https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
 	
@@ -177,7 +177,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 	* LMS: based on eye cones response at Long, Medium and Short wavelengths. All the info there: https://en.wikipedia.org/wiki/LMS_color_space
 	
-![Screenshot - Wheel](screenshots/exemple-color-space-lms.jpg?raw=true)
+![Screenshot - LMS](screenshots/exemple-color-space-lms.jpg?raw=true)
 
 	* Color Wheel: the good ol' additive light representation, already used in my previous tool but this time in 3D! (even if it is only on one plane). It is nice to find color correlations like "complementary" or "tetradric", etc. General info there: https://en.wikipedia.org/wiki/Color_wheel
 	
