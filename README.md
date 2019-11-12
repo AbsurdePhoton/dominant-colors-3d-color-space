@@ -59,7 +59,7 @@ This software should also work under Microsoft Windows: if you tried it successf
 * Just click the "Load image" button
 
 * You have two options before loading:
-	* Reduce size: the biggest the image, the longest you wait! Tests have shown that reducing the image to 512 pixels doesn't affect much the dominant colors distribution. It also helps with noisy images
+	* Reduce size: the bigger the image, the longer you wait! Tests have shown that reducing the image to 512 pixels doesn't affect much the dominant colors distribution. It also helps with noisy images
 	* Gaussian blur: you might not want to reduce the image, but image noise can affect results VS what you really perceive. The solution is to apply a 3x3 Gaussian blur that helps smooth surfaces
 
 ### FINDING DOMINANT COLORS
