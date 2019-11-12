@@ -100,7 +100,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* color name. Sometimes it is poetic, and sometimes it is just a code. This information was tricky to develop:
 		* I used a text file containing more than 9000 RGB values and corresponding color names from http://mkweb.bcgsc.ca/colornames
 		* if the exact RGB value is found the name is displayed, if not the nearest color is displayed (using the euclidian distance in RGB color space between the two colors)
-		* remember to put color-names.txt in the same folder as the executable (particularly in your compiling folder)
+		* remember to put color-names.csv in the same folder as the executable (particularly in your compiling folder)
 
 * CTRL + left mouse button on a color in the Palette or Quantized image will select the color: it is identified with a white circle in the 3D view. Do it again to deselect. When a color is selected it is also shown on the Quantized image
 
