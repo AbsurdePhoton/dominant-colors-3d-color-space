@@ -81,6 +81,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox_sort->addItem("Whiteness");
     ui->comboBox_sort->addItem("Blackness");
     ui->comboBox_sort->addItem("RGB");
+    ui->comboBox_sort->addItem("Luma");
+    ui->comboBox_sort->addItem("Rainbow6");
     ui->comboBox_sort->blockSignals(false); // return to normal behavior
 
     // fullscreen button
@@ -807,6 +809,12 @@ void MainWindow::SortPalettes() // sort palette values and create palette image
     else if (ui->comboBox_sort->currentText() == "RGB")
         std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
                   [](const struct_palette& a, const struct_palette& b) {return a.hexa < b.hexa;});
+    else if (ui->comboBox_sort->currentText() == "Luma") // Luma = Sqrt(0.241*R + 0.691*G + 0.068*B)
+        std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
+                  [](const struct_palette& a, const struct_palette& b) {return 0.241 * a.RGB.R + 0.691 * a.RGB.G + 0.068 * a.RGB.B < 0.241 * b.RGB.R + 0.691 * b.RGB.G + 0.068 * b.RGB.B;});
+    else if (ui->comboBox_sort->currentText() == "Rainbow6") // Hue + Luma
+        std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
+                  [](const struct_palette& a, const struct_palette& b) {return int(a.HSL.H * 60.0) + sqrt(0.241 * a.RGB.R + 0.691 * a.RGB.G + 0.068 * a.RGB.B) < int(b.HSL.H * 60.0) + sqrt(0.241 * b.RGB.R + 0.691 * b.RGB.G + 0.068 * b.RGB.B);});
 
     // create palette image - could be a mess over 250 values
     palette = Mat::zeros(cv::Size(palette_width, palette_height), CV_8UC3); // create blank palette image
