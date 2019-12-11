@@ -84,7 +84,7 @@ This software should also work under Microsoft Windows: if you tried it successf
 	* 'Filter grays': what is really meant is gray AND near-blacks AND near-whites, which are after all different kinds of grays! It helps getting only colors in the resulting palette. The image is filtered in HSL color space:
 		* Saturation S < 25% - corresponding to grays
 		* Lightness L < 15% - corresponding to blacks
-		* Lightness L < 80% - corresponding to whites
+		* Lightness L > 80% - corresponding to whites
 	* 'Filter < x%': it simply ignores colors that represent less than x% in the whole image (not including greys if the other filter is set)
 	* Both filters are likely to reduce the number of colors you asked
 
