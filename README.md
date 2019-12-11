@@ -31,6 +31,8 @@ Lately I paid great attention to colors in my photo editing process. Delicately 
 
 I wanted to analyze how the colors in my photos were distributed. I tried to find tools on the internet, but none of them had all I wanted, so I started coding once again. The first version was only a color wheel... now you can visualize the results in full 3D, in the most-known color spaces + a 3D color wheel!
 
+'The first version was only a color wheel"... This software lacks an important feature that wouldn't make sense in 3D color spaces: analyzing how the colors in an image/painting/photo interact with each other. This is exactly what you will get in the improved version ot my Color Wheel software here: https://github.com/AbsurdePhoton/dominant-colors-rgb-wheel
+
 <br/>
 <br/>
 
