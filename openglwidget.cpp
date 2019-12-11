@@ -1070,7 +1070,7 @@ void openGLWidget::ConvertPaletteFromRGB() // convert entire palette values in c
         // L*A*B*
         double A;
         XYZtoLAB(X, Y, Z, L, A, B); // convert XYZ to LAB values
-        palettes[n].CIELAB.L = L;
+        palettes[n].CIELAB.L = L;std::string hexa;
         palettes[n].CIELAB.A = A;
         palettes[n].CIELAB.B = B;
 
@@ -1092,6 +1092,17 @@ void openGLWidget::ConvertPaletteFromRGB() // convert entire palette values in c
         palettes[n].LMS.L = L;
         palettes[n].LMS.M = M;
         palettes[n].LMS.S = S;
+
+        // CMYK
+        double K;
+        RGBtoCMYK(palettes[n].RGB.R,
+                  palettes[n].RGB.G,
+                  palettes[n].RGB.B,
+                  C, M, Y, K); // convert RGB to CMYK values
+        palettes[n].CMYK.C = C;
+        palettes[n].CMYK.M = M;
+        palettes[n].CMYK.Y = Y;
+        palettes[n].CMYK.K = K;
     }
 }
 

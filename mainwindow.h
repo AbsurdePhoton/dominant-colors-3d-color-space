@@ -45,7 +45,7 @@ public:
 
 
 public slots:
-    void ShowTimer(); // time elapsed
+    void ShowTimer(const bool start); // time elapsed
 
 
 private slots:

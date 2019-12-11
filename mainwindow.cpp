@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Timer
     ui->timer->setPalette(Qt::red); // red !
+    ui->timer->display("-------");
 
     // initial variable values
     InitializeValues();
@@ -151,7 +152,7 @@ void MainWindow::InitializeValues() // Global variables init
         names.close(); // close text file
     }
     else {
-        QMessageBox::critical(this, "Colors CSV file not found!", "You forgot to put 'color-names.csv' in the same folder as the executable! This tool will crash if you click on a color...");
+        QMessageBox::critical(this, "Colors CSV file not found!", "You forgot to put 'color-names.csv' in the same folder as the executable! This tool will crash as soon as you quantize an image...");
     }
 }
 
@@ -270,6 +271,14 @@ void MainWindow::on_button_3d_exit_fullscreen_clicked() // exit fullscreen view 
     ui->openGLWidget_3d->resize(QSize(saveWidthOpenGL, saveHeightOpenGL)); // ... and size
     ui->checkBox_3d_fullscreen->setChecked(false); // uncheck fullscreen button
     ui->button_3d_exit_fullscreen->setVisible(false); // hide exit button
+    ui->spinBox_3D_rotate_x->raise(); // bring back 3D controls over 3D view
+    ui->spinBox_3D_rotate_y->raise();
+    ui->spinBox_3D_rotate_z->raise();
+    ui->horizontalSlider_3D_rotate_y->raise();
+    ui->verticalSlider_3D_rotate_x->raise();
+    ui->button_3d_reset->raise();
+    ui->checkBox_3d_light->raise();
+    ui->checkBox_3d_fullscreen->raise();
 }
 
 void MainWindow::on_button_3d_reset_flags_clicked() // reset visibility and selection flags in 3D view
@@ -367,9 +376,9 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
 
         if ((mouseButton == Qt::LeftButton) and (!palette.empty())) { // mouse left button clicked
             const QPixmap* q = ui->label_palette->pixmap(); // stored reduced quantized image in GUI
-            int x = palette.cols * double(mouse_pos.x() - (ui->label_palette->width() - q->width()) / 2) / double(q->width()); // real x position in palette image
-            //int x = round(double(palette_width) * mouse_pos.x() / ui->label_palette->width()); // x position in palette
-            if ((x >= 0) and (x <= palette.cols)) {
+            int x = round(palette.cols * double(mouse_pos.x() - (ui->label_palette->width() - q->width()) / 2) / double(q->width())); // real x position in palette image
+            int y = round(palette.rows * double(mouse_pos.y() - (ui->label_palette->height() - q->height()) / 2) / double(q->height())); // real y position in palette image
+            if ((x > 0) and (x <= palette.cols) and (y > 0) and (y <= palette.rows)) {
                 color = palette.at<Vec3b>(0, x); // pick color in palette
                 color_found = true; // found !
             }
@@ -387,13 +396,16 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
             double percentX = double(mouse_pos.x() - (ui->label_quantized->width() - q->width()) / 2) / double(q->width()); // real x and y position in quantized image
             double percentY = double(mouse_pos.y() - (ui->label_quantized->height() - q->height()) / 2) / double(q->height());
 
-            color = quantized.at<Vec3b>(round(percentY * quantized.rows), round(percentX * quantized.cols)); // pick color in quantized image at x,y
-            color_found = true; // found !
+            if ((percentX >= 0) and (percentX <= 1) and (percentY >= 0) and (percentY <= 1)) {
+                color = quantized.at<Vec3b>(round(percentY * quantized.rows), round(percentX * quantized.cols)); // pick color in quantized image at x,y
+                color_found = true; // found !
+            }
         }
     }
 
     if (color_found) { // color picked ?
-        int R = color[2]; // RGB values from BGR
+        // RGB values
+        int R = color[2];
         int G = color[1];
         int B = color[0];
 
@@ -401,20 +413,20 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
         Mat bar = cv::Mat::zeros(cv::Size(1,1), CV_8UC3); // 1 pixel image
         bar = Vec3b(B,G,R); // set it to picked color
         ui->label_color_bar->setPixmap(Mat2QPixmapResized(bar, ui->label_color_bar->width(), ui->label_color_bar->height(), false)); // show picked color
-
         ui->label_color_r->setText(QString::number(R)); // show RGB values
         ui->label_color_g->setText(QString::number(G));
         ui->label_color_b->setText(QString::number(B));
 
-        QString hex = QString(" %1").arg(((R & 0xff) << 16) + ((G & 0xff) << 8) + (B & 0xff), 6, 16, QChar('0')).trimmed(); // compute hexa RGB value
-        ui->label_color_hex->setText("#" + hex.toUpper()); // show it
-        
         // find color in palette
         bool found = false; // picked color found in palette ?
         for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // search in palette
-            if ((round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0) == R) and (round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0) == G) and (round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0) == B)) { // identical RGB values found
-                QString value = QString::number(ui->openGLWidget_3d->palettes[n].percentage * 100, 'f', 2) + " %"; // picked color percentage in quantized image
+            if ((round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0) == R)
+                    and (round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0) == G)
+                    and (round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0) == B)) { // identical RGB values found
+                QString value = QString::number(ui->openGLWidget_3d->palettes[n].percentage * 100, 'f', 2) + "%"; // picked color percentage in quantized image
                 ui->label_color_percentage->setText(value); // display percentage
+                ui->label_color_name->setText(QString::fromStdString(ui->openGLWidget_3d->palettes[n].name));
+                ui->label_color_hex->setText(QString::fromStdString(ui->openGLWidget_3d->palettes[n].hexa)); // show hexa
 
                 found = true; // color found in palette
 
@@ -424,6 +436,7 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
                 }
                 if (key_alt)
                     ui->openGLWidget_3d->palettes[n].visible = !ui->openGLWidget_3d->palettes[n].visible; // alt key = switch visibility state for this color in 3D scene
+
                 converted = ConvertColor(ui->openGLWidget_3d->palettes[n].RGB.R, ui->openGLWidget_3d->palettes[n].RGB.G, ui->openGLWidget_3d->palettes[n].RGB.B); // compute string with values in most known color spaces
 
                 ui->openGLWidget_3d->update(); // update 3D view
@@ -433,34 +446,8 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
         }
         if (!found) { // picked color not found in palette
             ui->label_color_percentage->setText(""); // no percentage displayed
-            converted = "No color to convert";
-        }
-
-        // find nearest color name by euclidian distance
-        found = false;
-        int distance = 1000000; // distance formula can never reach this high
-        int index; // nearest color index in color names table
-
-        for (int n = 0; n < nb_color_names; n++) { // search in color names table
-            int d = pow(R - color_names[n].R, 2) + pow(G - color_names[n].G, 2) + pow(B - color_names[n].B, 2); // euclidian distance
-            if (d == 0) { // exact RGB values found
-                ui->label_color_name->setText(color_names[n].name); // display color name
-                found = true; // color found in palette
-                break; // get out of loop
-            }
-            else {
-                if (d < distance) { // if distance is smaller
-                    distance = d; // new distance
-                    index = n; // keep index for this new distance
-                }
-            }
-        }
-        if (!found) { // picked color not found in palette so display nearest color
-            ui->label_color_name->setText("nearest: "
-                                          + color_names[index].name
-                                          + " (" + QString::number(color_names[index].R) + ","
-                                          + QString::number(color_names[index].G) + ","
-                                          + QString::number(color_names[index].B) + ")");
+            ui->label_color_name->setText(""); // no color name
+            ui->label_color_hex->setText(""); // no hexa
         }
     }
 }
@@ -527,7 +514,7 @@ void MainWindow::on_button_load_image_clicked() // load image to analyze
     ui->openGLWidget_3d->nb_palettes = -1; // no palette to show yet
     ui->openGLWidget_3d->update(); // show empty 3D view
 
-    ui->timer->display("0"); // reset timer in GUI
+    ui->timer->display("-------"); // reset timer in GUI
     ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:black;}"); // number of colors in black = no error
 
     ui->label_color_bar->setPixmap(QPixmap()); // show picked color
@@ -558,14 +545,14 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
         cv::imwrite(basedir + basefile + "-classification.png", classification);*/
 
     // palette save to CSV file
-    std::string line; // line to write in text file
     ofstream save; // file to save
     save.open(basedir + basefile + "-palette.csv"); // save palette file
 
     if (save) { // if successfully open
         setlocale(LC_ALL, "C"); // force numeric separator=dot instead of comma (I'm French) when using std functions
-        save << "RGB.R byte;RGB.G byte;RGB.B byte;RGB.R %;RGB.G %;RGB.B %;RGB hexadecimal;HSV.H °;HSV.S %;HSV.V %;HSV.C %;HSL.H °;HSL.S %;HSL.L %;HSL.C %;HWB.H °;HWB.W %;HWB.B %;XYZ.X %;XYZ.Y %;XYZ.Z %;xyY.x %;xyY.y %;xyY.Y %;L*u*v*.L %;L*u*v*.u %;L*u*v*.v %;LCHuv.L %;LCHuv.C %;LCHuv.H °;L*A*B*.L %;L*A*B*.a signed max=127;L*A*B*.b signed max=127;LCHab.L %;LCHab.C %;LCHab.H °;Hunter LAB.L %;Hunter LAB.a signed %;Hunter LAB.b signed %;LMS.L %;LMS.M %;LMS.S °;Percentage\n"; // CSV header
+        save << "Name;RGB.R byte;RGB.G byte;RGB.B byte;RGB.R %;RGB.G %;RGB.B %;RGB hexadecimal;HSV.H °;HSV.S %;HSV.V %;HSV.C %;HSL.H °;HSL.S %;HSL.L %;HSL.C %;HWB.H °;HWB.W %;HWB.B %;XYZ.X %;XYZ.Y %;XYZ.Z %;xyY.x %;xyY.y %;xyY.Y %;L*u*v*.L %;L*u*v*.u %;L*u*v*.v %;LCHuv.L %;LCHuv.C %;LCHuv.H °;L*A*B*.L %;L*A*B*.a signed max=127;L*A*B*.b signed max=127;LCHab.L %;LCHab.C %;LCHab.H °;Hunter LAB.L %;Hunter LAB.a signed %;Hunter LAB.b signed %;LMS.L %;LMS.M %;LMS.S °;CMYK.C %;CMYK.M %;CMYK.Y %;CMYK.K %;Percentage\n"; // CSV header
         for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // read palette
+            save << ui->openGLWidget_3d->palettes[n].name << ";";
             // RGB [0..255]
             save << round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0) << ";";
             save << round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0) << ";";
@@ -622,11 +609,56 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
             save << ui->openGLWidget_3d->palettes[n].LMS.L * 100.0 << ";";
             save << ui->openGLWidget_3d->palettes[n].LMS.M * 100.0 << ";";
             save << ui->openGLWidget_3d->palettes[n].LMS.S * 100.0 << ";";
+            // CMYK
+            save << ui->openGLWidget_3d->palettes[n].CMYK.C * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].CMYK.M * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].CMYK.Y * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].CMYK.K * 100.0 << ";";
             // percentage
             save << ui->openGLWidget_3d->palettes[n].percentage << "\n";
         }
 
         save.close(); // close text file
+    }
+
+    // palette .ACT file (Adobe Photoshop and Illustrator)
+    char buffer[771] = {0}; // .ACT files are 772 bytes long
+    ofstream saveACT (basedir + basefile + "-palette-adobe.act", ios::out | ios::binary); // open stream
+
+    for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // palette values to buffer
+        buffer[n * 3 + 0] = round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0);
+        buffer[n * 3 + 1] = round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0);
+        buffer[n * 3 + 2] = round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0);
+    }
+    buffer[768] = (unsigned short) ui->openGLWidget_3d->nb_palettes; // last second 16-bit value : number of colors in palette
+    buffer[770] = (unsigned short) 255; // last 16-bit value : which color is transparency
+    saveACT.write(buffer, 772); // write 772 bytes from buffer
+    saveACT.close(); // close binary file
+
+    // palette .PAL file (text JASC-PAL for PaintShop Pro)
+    ofstream saveJASC; // file to save
+    saveJASC.open(basedir + basefile + "-palette-paintshopro.pal"); // save palette file
+    if (saveJASC) { // if successfully open
+        saveJASC << "JASC-PAL\n0100\n";
+        saveJASC << ui->openGLWidget_3d->nb_palettes << "\n";
+        for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // read palette
+            saveJASC << round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0) << " ";
+            saveJASC << round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0) << " ";
+            saveJASC << round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0) << "\n";
+        }
+        saveJASC.close(); // close text file
+    }
+
+    // palette .PAL file (text with CMYK values for CorelDraw)
+    ofstream saveCOREL; // file to save
+    saveCOREL.open(basedir + basefile + "-palette-coreldraw.pal"); // save palette file
+    if (saveCOREL) { // if successfully open
+        double C, M, Y, K;
+        for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // read palette
+            RGBtoCMYK(ui->openGLWidget_3d->palettes[n].RGB.R, ui->openGLWidget_3d->palettes[n].RGB.G, ui->openGLWidget_3d->palettes[n].RGB.B, C, M, Y, K);
+            saveCOREL << '"' << ui->openGLWidget_3d->palettes[n].name << '"' << " " << int(round(C * 100.0)) << " " << int(round(M * 100.0)) << " " << int(round(Y * 100.0)) << " " << int(round(K * 100.0)) << "\n";
+        }
+        saveCOREL.close(); // close text file
     }
 
     QMessageBox::information(this, "Results saved", "Your results were saved with base file name:\n" + QString::fromStdString(basedir + basefile));
@@ -642,10 +674,36 @@ void MainWindow::Compute() // analyze image dominant colors
 
     QApplication::setOverrideCursor(Qt::WaitCursor); // wait cursor
     timer.start(); // start of elapsed time
-    ShowTimer(); // show elapsed time
+    ShowTimer(true); // show elapsed time
     qApp->processEvents();
 
-    ui->openGLWidget_3d->nb_palettes = ui->spinBox_nb_palettes->value(); // how many dominant colors to compute
+    Mat imageCopy; // work on a copy of the image, because gray colors can be filtered
+    image.copyTo(imageCopy);
+
+    if (ui->checkBox_filter_grays->isChecked()) { // filter whites, blacks and greys
+        Vec3b RGB;
+        double H, S, L, C;
+
+        for (int x = 0; x < imageCopy.cols; x++) // parse temp image
+            for  (int y = 0; y < imageCopy.rows; y++) {
+                RGB = imageCopy.at<Vec3b>(y, x); // current pixel color
+                RGBtoHSL(double(RGB[2]) / 255.0, double(RGB[1]) / 255.0, double(RGB[0]) / 255.0, H, S, L, C); // convert it to HSL
+
+                if ((S < 0.25) or (L < 0.15) or (L > 0.8)) // white or black or grey pixel ?
+                    imageCopy.at<Vec3b>(y, x) = Vec3b(0, 0, 0); // replace it with black
+            }
+    }
+
+    ui->openGLWidget_3d->nb_palettes= ui->spinBox_nb_palettes->value(); // how many dominant colors
+    int nb_palettes_asked = ui->openGLWidget_3d->nb_palettes; // save asked number of colors for later
+    ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:black;}"); // show number of colors in black (in case it was red before)
+
+    if (ui->checkBox_filter_grays->isChecked()) { // if grays and blacks and whites filtered
+        Mat1b black_mask;
+        inRange(imageCopy, Vec3b(0, 0, 0), Vec3b(0, 0, 0), black_mask); // extract black pixels from image
+        if ((cv::sum(black_mask) != Scalar(0,0,0))) // image contains black pixels ?
+                ui->openGLWidget_3d->nb_palettes++; // add one color to asked number of colors in palette, to remove it later and get only colors
+    }
 
     // set palette values to 0;
     for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) {
@@ -659,71 +717,165 @@ void MainWindow::Compute() // analyze image dominant colors
     }
 
     if (ui->radioButton_eigenvectors->isChecked()) { // eigen method
-        std::vector<cv::Vec3b> palette_vec = DominantColorsEigen(image, ui->openGLWidget_3d->nb_palettes, &quantized); // get dominant palette, palette image and quantized image
+        std::vector<cv::Vec3b> palette_vec = DominantColorsEigen(imageCopy, ui->openGLWidget_3d->nb_palettes, &quantized); // get dominant palette, palette image and quantized image
 
         for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) // store palette values in structured array
         {
             // RGB
-            ui->openGLWidget_3d->palettes[n].RGB.R = palette_vec[n][2] / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.G = palette_vec[n][1] / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.B = palette_vec[n][0] / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.R = double(palette_vec[n][2]) / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.G = double(palette_vec[n][1]) / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.B = double(palette_vec[n][0]) / 255.0;
         }
         ui->openGLWidget_3d->ConvertPaletteFromRGB(); // convert RGB to other values
     }
     else if (ui->radioButton_k_means->isChecked()) { // K-means method
         cv::Mat1f colors; // to store palette from K-means
-        quantized = DominantColorsKMeans(image, ui->spinBox_nb_palettes->value(), &colors); // get quantized image and palette
+        quantized = DominantColorsKMeans(imageCopy, ui->spinBox_nb_palettes->value(), &colors); // get quantized image and palette
 
         for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) // store palette in structured array
         {
             // RGB
-            ui->openGLWidget_3d->palettes[n].RGB.R = colors(n, 2) / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.G = colors(n, 1) / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.B = colors(n, 0) / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.R = double(colors(n, 2)) / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.G = double(colors(n, 1)) / 255.0;
+            ui->openGLWidget_3d->palettes[n].RGB.B = double(colors(n, 0)) / 255.0;
         }
         ui->openGLWidget_3d->ConvertPaletteFromRGB(); // convert RGB to other values
 
         //classification.release();
     }
 
-    // count occurences of colors in quantized image
-    int total = quantized.rows * quantized.cols; // size of quantized image in pixels
-    for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) { // for each color in palette
-        Mat1b mask; // current color mask
-        inRange(quantized, Vec3b(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0),
-                                 round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0),
-                                 round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0)),
-                           Vec3b(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0),
-                                 round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0),
-                                 round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0)),
-                           mask); // create mask for current color
-        ui->openGLWidget_3d->palettes[n].count = cv::countNonZero(mask); // count pixels in mask
-        ui->openGLWidget_3d->palettes[n].percentage = double(ui->openGLWidget_3d->palettes[n].count) / double(total); // color use percentage
+    // compute HSL values from RGB + compute hexa
+    for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) {
+        // HSL value
+        double C;
+        RGBtoHSL(ui->openGLWidget_3d->palettes[n].RGB.R, ui->openGLWidget_3d->palettes[n].RGB.G, ui->openGLWidget_3d->palettes[n].RGB.B,
+                 ui->openGLWidget_3d->palettes[n].HSL.H, ui->openGLWidget_3d->palettes[n].HSL.S, ui->openGLWidget_3d->palettes[n].HSL.L, C); // convert current color to HSL
+
+        // hexadecimal value
+        QString hex = QString(" %1").arg(((int(round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0)) & 0xff) << 16)
+                                       + ((int(round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0)) & 0xff) << 8)
+                                       +  (int(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0)) & 0xff)
+                                         , 6, 16, QChar('0')).trimmed(); // compute hexa RGB value
+        hex = "#" + hex;
+        ui->openGLWidget_3d->palettes[n].hexa = hex.toUpper().toUtf8().constData();
     }
 
     // clean palette : number of asked colors may be superior to number of colors found
     int n = CountRGBUniqueValues(quantized); // how many colors in quantized image, really ?
     if (n < ui->openGLWidget_3d->nb_palettes) { // if asked number of colors exceeds total number of colors in image
         std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
-                  [](const struct_palette& a, const struct_palette& b) {return a.hexa > b.hexa;}); // sort palette by percentage, decreasing values
+                  [](const struct_palette& a, const struct_palette& b) {return a.hexa > b.hexa;}); // sort palette by hexa value, decreasing values
         if ((ui->openGLWidget_3d->palettes[0].RGB.R == ui->openGLWidget_3d->palettes[1].RGB.R)
                 and (ui->openGLWidget_3d->palettes[0].RGB.G == ui->openGLWidget_3d->palettes[1].RGB.G)
                 and (ui->openGLWidget_3d->palettes[0].RGB.B == ui->openGLWidget_3d->palettes[1].RGB.B)) // if first color in palette is equal to second we have to reverse sort by percentage
             std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
-                      [](const struct_palette& a, const struct_palette& b) {return a.hexa > b.hexa;}); // this time by increasing percentage values
+                      [](const struct_palette& a, const struct_palette& b) {return a.hexa > b.hexa;}); // sort the palette, this time by increasing hexa values
         ui->openGLWidget_3d->nb_palettes = n; // new number of colors in palette
         ui->spinBox_nb_palettes->setValue(ui->openGLWidget_3d->nb_palettes); // show new number of colors
-        ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:red;}"); // show new number of colors in red
     }
-    else // asked number of colors does not exceed total number of colors in image
-        ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:black;}"); // show number of colors in black (in case it was red before)
+
+    int total = quantized.rows * quantized.cols; // size of quantized image in pixels
+
+    // delete blacks in palette if needed
+    bool black_found = false;
+    if (ui->checkBox_filter_grays->isChecked()) { // delete last "black" values in palette
+        std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
+              [](const struct_palette& a, const struct_palette& b) {return a.HSL.L > b.HSL.L;}); // sort palette by lightness value
+        while (ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].HSL.L < 0.15) { // at the end of palette, find black colors
+            Mat1b black_mask;
+            inRange(quantized, Vec3b(int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.R * 255.0))),
+                               Vec3b(int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.R * 255.0))),
+                               black_mask); // extract black color from image
+            int c = countNonZero(black_mask);
+            total = total - c; // update total pixel count
+            ui->openGLWidget_3d->nb_palettes--; // exclude this black color from palette
+            if (c > 0) // really found black color ?
+                black_found = true; // black color found !
+        }
+        if (black_found) { // if black color found
+            ui->spinBox_nb_palettes->setValue(ui->openGLWidget_3d->nb_palettes); // show new number of colors without black values
+        }
+    }
+
+    // compute percentages
+    for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) { // for each color in palette
+        Mat1b mask; // current color mask
+        inRange(quantized, Vec3b(int(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0))),
+                           Vec3b(int(round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0))),
+                           mask); // create mask for current color
+        ui->openGLWidget_3d->palettes[n].count = cv::countNonZero(mask); // count pixels in this mask
+        ui->openGLWidget_3d->palettes[n].percentage = double(ui->openGLWidget_3d->palettes[n].count) / double(total); // compute color use percentage
+    }
+
+    // delete non significant values in palette by percentage
+    if (ui->checkBox_filter_percent->isChecked()) { // filter by x% ?
+        bool cleaning_found = false; // indicator
+        std::sort(ui->openGLWidget_3d->palettes, ui->openGLWidget_3d->palettes + ui->openGLWidget_3d->nb_palettes,
+              [](const struct_palette& a, const struct_palette& b) {return a.percentage > b.percentage;}); // sort palette by percentage
+        while (double(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].count) / double(total) < double(ui->spinBox_nb_percentage->value()) / 100.0) { // at the end of palette, find values < x%
+            Mat1b cleaning_mask;
+            inRange(quantized, Vec3b(int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.R * 255.0))),
+                               Vec3b(int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.B * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.G * 255.0)), int(round(ui->openGLWidget_3d->palettes[ui->openGLWidget_3d->nb_palettes - 1].RGB.R * 255.0))),
+                               cleaning_mask); // extract color from image
+            int c = countNonZero(cleaning_mask); // count occurences
+            total = total - c; // update total pixel count
+            ui->openGLWidget_3d->nb_palettes--; // exclude this color from palette
+            if (c > 0) // really found this color ?
+                cleaning_found = true; // nb_palettes has to change
+        }
+        if (cleaning_found) { // if cleaning found
+            ui->spinBox_nb_palettes->setValue(ui->openGLWidget_3d->nb_palettes); // show new number of colors without cleaned values
+            // re-compute percentages
+            for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) // for each color in palette
+                ui->openGLWidget_3d->palettes[n].percentage = double(ui->openGLWidget_3d->palettes[n].count) / double(total); // update percentage
+        }
+    }
+
+    // find color name by euclidian distance
+    for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) { // for each color in palette
+        bool found = false;
+        int distance = 1000000; // distance formula can never reach this high
+        int index; // to keep nearest color index in color names table
+
+        for (int c = 0; c < nb_color_names; c++) { // search in color names table
+            int d = pow(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0 - color_names[c].R, 2) + pow(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0 - color_names[c].G, 2) + pow(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0 - color_names[c].B, 2); // euclidian distance
+            if (d == 0) { // exact RGB values found
+                ui->openGLWidget_3d->palettes[n].name = color_names[c].name.toUtf8().constData(); // assign color name
+                found = true; // color found in palette
+                break; // get out of loop
+            }
+            else {
+                if (d < distance) { // if distance is smaller
+                    distance = d; // new distance
+                    index = c; // keep index
+                }
+            }
+        }
+        if (!found) // picked color not found in palette so display nearest color
+            ui->openGLWidget_3d->palettes[n].name = color_names[index].name.toUtf8().constData(); // assign color name
+    }
 
     SortPalettes(); // sort and create palette image
+
+    // reset UI elements
+    ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:black;}"); // show number of colors in black (in case it was red before)
+    ui->label_color_bar->setPixmap(QPixmap()); // reset picked color
+    ui->label_color_bar->setText("Pick\nColor");
+    ui->label_color_r->setText("R"); // show RGB values
+    ui->label_color_g->setText("G");
+    ui->label_color_b->setText("B");
+    ui->label_color_hex->setText("Hex");
+    ui->label_color_percentage->setText("");
+    ui->label_color_name->setText("");
+    if (ui->openGLWidget_3d->nb_palettes < nb_palettes_asked) { // more colors asked than were really found ?
+        ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:red;}"); // show new number of colors in red
+        ui->spinBox_nb_palettes->setValue(ui->openGLWidget_3d->nb_palettes); // show new number of colors
+    }
 
     ui->openGLWidget_3d->update(); // show 3D view
     ShowImages(); // show result images
 
-    ShowTimer(); // show elapsed time
+    ShowTimer(false); // show elapsed time
     QApplication::restoreOverrideCursor(); // Restore cursor
 
     computed = true; // success !
@@ -760,13 +912,17 @@ void MainWindow::ShowImages() // display result images in GUI
         else ui->label_classification->setPixmap(QPixmap());*/
 }
 
-void MainWindow::ShowTimer() // show elapsed time
+void MainWindow::ShowTimer(const bool start) // time elapsed
 {
-    int milliseconds = int(timer.elapsed() % 1000); // milliseconds
-    int seconds = int(round(timer.elapsed() / 1000.0)) % 60; // seconds
-    ui->timer->display(QString(" %1").arg(seconds, 3, 10, QChar('0')).trimmed()
-                      + "."
-                      + QString(" %1").arg(milliseconds, 3, 10, QChar('0')).trimmed()); // show elapsed time
+    if (start)
+        ui->timer->display(".BUSY..."); // wait message
+    else {
+        int milliseconds = int(timer.elapsed()%1000); // milliseconds
+        int seconds = int(timer.elapsed()/1000%60); // seconds
+        ui->timer->display(QString("%1").arg(seconds, 3, 10, QChar('0'))
+                          + "."
+                          + QString("%1").arg(milliseconds, 3, 10, QChar('0'))); // show value in LCD timer
+    }
 }
 
 void MainWindow::SortPalettes() // sort palette values and create palette image
@@ -916,6 +1072,14 @@ QString MainWindow::ConvertColor(const double &R, const double &G, const double 
     result += "<b>Hunter Lab</b>........ <b><font color='cadetblue'>L</font></b>: " + QString::number(L * 100.0, 'G', 5)
                 + " <b><font color='darkkhaki'>a</font></b>: " + QString::number(a * 100.0, 'G', 5)
                 + " <b><font color='forestgreen'>b</font></b>: " + QString::number(b * 100.0, 'G', 5) + "<br>";
+
+    // CMYK
+    double M, K;
+    RGBtoCMYK(R, G, B, C, M, Y, K); // convert RGB to CMYK values
+    result += "<b>CMYK</b>.................. <b><font color='cyan'>C</font></b>: " + QString::number(C * 100.0, 'G', 5)
+                + " <b><font color='magenta'>M</font></b>: " + QString::number(M * 100.0, 'G', 5)
+                + " <b><font color='gold'>Y</font></b>: " + QString::number(Y * 100.0, 'G', 5)
+                + " <b><font color='black'>K</font></b>: " + QString::number(K * 100.0, 'G', 5) + "<br>";
 
     return result;
 }

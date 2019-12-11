@@ -412,7 +412,7 @@ void DrawText(const std::string &text, const float &x0, const float &y0, const f
 {
     float xCurrent = 0;
 
-    for (int n = 0; n < text.length(); n++) {
+    for (uint n = 0; n < text.length(); n++) {
         DrawChar(text[n], x0, y0 + xCurrent, z0, scale, R, G, B, width);
         xCurrent += scale * characters_matrix_cols;
     }

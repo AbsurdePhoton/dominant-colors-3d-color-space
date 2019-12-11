@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1.0 - 2019/11/08
+#                v1.1 - 2019/12/07
 #
 #  Color spaces :
 #    - RGB
@@ -18,6 +18,8 @@
 #    - Hunter Lab
 #    - LMS
 #
+#  + color utils
+#
 #-------------------------------------------------*/
 
 #include <algorithm>
@@ -26,10 +28,34 @@
 
 using namespace std;
 
+/////////////////// Color utils //////////////////////
+/////// All input values are in range [0..1]
+
+bool IsHSLColorWarm(const double &H, const double &S, const double &L) // tells wether a color is "cold" or "warm" (based on HSL)
+{
+    bool warm = true; // consider the answer is "yes the color is warm"
+
+    if ((L < 0.15) or (L > 0.8) or (S < 0.2)) // lightness and saturation : if a color is too dark or too gray or too white it is "cold"
+        warm = false;
+    else
+        if ((H > 80) and (H < 330)) // if hue is in "cold range"
+            warm = false;
+
+    return warm; // true=warm, false=cold
+}
+
+bool IsRGBColorWarm(const double &R, const double &G, const double &B) // tells wether a color is "cold" or "warm" (based on HSL)
+{
+    double H, S, L, C;
+    RGBtoHSL(R, G, B, H, S, L, C);
+
+    return IsHSLColorWarm(H, S, L); // true=warm, false=cold
+}
+
 /////////////////// Color spaces conversions //////////////////////
 //// All values are in range [0..1]
 
-void WavelengthToXYZ(const double w, double &X, double &Y, double &Z) // wavelength to XYZ color space
+void WavelengthToXYZ(const double &w, double &X, double &Y, double &Z) // wavelength to XYZ color space
 {
     int n = -1; // index of array
 
@@ -602,4 +628,32 @@ void XYZtoLMS(const double &X, const double &Y, const double &Z, double &L, doub
     L = 0.7328  * X + 0.4296 * Y - 0.1624 * Z;
     M = -0.7036 * X + 1.6975 * Y + 0.0061 * Z;
     S = 0.0030  * X + 0.0136 * Y + 0.9834 * Z;
+}
+
+//// CMYK
+//// See https://en.wikipedia.org/wiki/CMYK_color_model
+//// All values [0..1]
+//// Common range : C [0..100] M [0..100] Y [0..100] K [0..100]
+
+double ClampCMYK(const double &value)
+{
+    if (value < 0 or isnan(value))
+        return 0;
+    else
+        return value;
+}
+
+void RGBtoCMYK(const double &R, const double &G, const double &B, double &C, double &M, double &Y, double &K) // convert from RGB to CYMK
+{
+    K = ClampCMYK(1 - max(max(R, G), B));
+    C = ClampCMYK((1 - R - K) / (1 - K));
+    M = ClampCMYK((1 - G - K) / (1 - K));
+    Y = ClampCMYK((1 - B - K) / (1 - K));
+}
+
+void CMYKtoRGB(const double &C, const double &M, const double &Y, const double &K, double &R, double &G, double &B) // convert from CMYK to RGB
+{
+    R = (1 - C) * (1 - K);
+    G = (1 - M) * (1 - K);
+    B = (1 - Y) * (1 - K);
 }

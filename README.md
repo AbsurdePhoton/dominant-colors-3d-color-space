@@ -1,16 +1,18 @@
 # dominant-colors-3d-color-space
 ## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results in 3D color spaces
-### v2 - 2019-11-08 
+### v2.1 - 2019-12-07 
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
 <br/>
 
 ## HISTORY
 
-* v0 - launch
-* v0.1 - more accurate and several color spaces added
-* v1 - checked conversion formulas against online calculators: all good!
+* v2.1 - GUI improvements + added filters when quantizing (greys, percents) + added CMYK in palette CSV file + save palettes for popular graphics software like Photoshop, Corel Draw and Paintshop Pro
 * v2 - added interesting color spaces + lettered axes and visible specter boundaries in 3d view + color conversion button + select/hide colors + bug-fixed Eigen method that was limited to 128 levels + palette cleaning + many other bug fixes
+* v1 - checked conversion formulas against online calculators: all good!
+* v0.1 - more accurate and several color spaces added
+* v0 - launch
+
 <br/>
 <br/>
 
@@ -72,9 +74,17 @@ This software should also work under Microsoft Windows: if you tried it successf
 	* Eigen vectors: the fastest - source: http://aishack.in/tutorials/dominant-color/ (was limited to 128 colors, I extended that)
 	* K-means: a well-known algorithm to aggregate significant data  - source: https://jeanvitor.com/k-means-image-segmentation-opencv/
 
-* Click Compute to finish: you end up with a 3D view, a quantized image and a palette. The elapsed time is shown on the LCD display
+* Click QUANTIZE to finish: you end up with a 3D view, a quantized image and a palette. The elapsed time is shown on the LCD display
 
 * If the number of colors you wanted exceeds the number of colors in the image, the number of colors is adjusted and shown in red after computation
+
+* You can choose to filter the image before quantizing in two ways that can be combined:
+	* 'Filter grays': what is really meant is gray AND near-blacks AND near-whites, which are after all different kinds of grays! It helps getting only colors in the resulting palette. The image is filtered in HSL color space:
+		* Saturation S < 25% - corresponding to grays
+		* Lightness L < 15% - corresponding to blacks
+		* Lightness L < 80% - corresponding to whites
+	* 'Filter < x%': it simply ignores colors that represent less than x% in the whole image (not including greys if the other filter is set)
+	* Both filters are likely to reduce the number of colors you asked
 
 ### ACCURACY OF ALGORITHMS
 
@@ -82,7 +92,8 @@ This software should also work under Microsoft Windows: if you tried it successf
 
 How efficient are the two algorithms ? To check, I just had to test my tool on images and well-known palettes. You can find several known palettes in the "examples" folder, to check the algorithms accuracy
 
-The two methods seem pretty good at first glance. Even more when you click on the Palette: a perfect match for both! The difference between the two methods will only be seen with complex images, the dominant colors are not exactly the same...
+The two methods seem pretty good at first glance. Even more when you click on the Palette: a perfect match for both!
+The difference between the two methods will only be seen with complex images: K-means is based partly on random seeds, so the best result (of 100 runs) is kept and is a bit different each time.
 
 ### PALETTE
 
@@ -94,7 +105,7 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 * Use the Sort selector to organize colors in several ways, using the values from the color spaces or percentage of use. Note that no algorithm exists to perfectly sort colors: it looks like a simple task but in fact... see here : https://www.alanzucconi.com/2015/09/30/colour-sorting/ 
 
-* You can left-click with your mouse on any color on the Quantized image or the Palette, to get information:
+* You can left-click with your mouse on any color in the Quantized image or the Palette, to get information:
 	* RGB values of picked color, in decimal and hexadecimal
 	* percentage of use in the quantized image
 	* color name. Sometimes it is poetic, and sometimes it is just a code. This information was tricky to develop:
@@ -135,7 +146,8 @@ The two methods seem pretty good at first glance. Even more when you click on th
 	* Palette: filename-palette.png
 	* Color space: filename-color-space-XXX.png
 	* Quantized image: filename-quantized.png
-	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage of use are saved - you can easily import it with LibreOffice Calc! Nota: I forced the decimal separator to be a dot, but for french people for example (like me) it is a comma: be sure to edit the .csv file to replace dots with commas if you are in this case before importing. It is for the same reason that the separator in the .csv file is a semicolon and not a comma...
+	* CSV file of palette: filename-palette.csv - RGB values (decimal and hexadecimal) + all known color space values + percentage of use are saved - you can easily import it with LibreOffice Calc! Nota: I forced the decimal separator to be a dot, because french people (like me) use a comma: be sure to edit the .csv file to replace dots with commas if you are in this case before importing. It is for the same reason that the separator in the .csv file is a semicolon and not a comma...
+	* Palettes for popular software like Photoshop (.ACT), Paintshop Pro (.PAL text file using RGB value) and Corel Draw (.PAL text file using CMYK values)
 
 ![Screenshot - CSV](screenshots/screenshot-csv.jpg?raw=true)
 	
@@ -198,3 +210,4 @@ The two methods seem pretty good at first glance. Even more when you click on th
 
 ### AbsurdePhoton
 My photographer website ''Photongénique'': www.absurdephoton.fr
+

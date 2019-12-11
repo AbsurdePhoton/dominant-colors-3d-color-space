@@ -4,7 +4,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v1.0 - 2019/11/08
+#                v1.1 - 2019/12/07
 #
 #  Color spaces :
 #    - RGB
@@ -17,6 +17,9 @@
 #    - HWB
 #    - Hunter Lab
 #    - LMS
+#    - CYMK
+#
+#  + color utils
 #
 #-------------------------------------------------*/
 
@@ -87,6 +90,12 @@ struct struct_luv {
     double u; // range [0..1] - chromaticity - display [-134..220]
     double v; // range [0..1] - chromaticity - display [-140..122]
 };
+struct struct_cmyk {
+    double C; // range [0..1] - Cyan - display [0..100]
+    double M; // range [0..1] - Magenta - display [0..100]
+    double Y; // range [0..1] - Yellow - display [0..100]
+    double K; // range [0..1] - Black - display [0..100]
+};
 
 struct struct_palette { // structure of a color value
     struct_rgb RGB; // all known color spaces
@@ -101,17 +110,23 @@ struct struct_palette { // structure of a color value
     struct_lchuv LCHUV;
     struct_lms LMS;
     struct_luv LUV;
+    struct_cmyk CMYK;
     std::string hexa;
     int count; // occurences
     double percentage; // percentage
+    std::string name; // name of color
     bool selected; // selection indicator
     bool visible; // visibility indicator
 };
 
+//// Color utils
+
+bool IsHSLColorWarm(const double &H, const double &S, const double &L); // tells wether a color is "cold" or "warm" (based on HSL)
+bool IsRGBColorWarm(const double &R, const double &G, const double &B); // tells wether a color is "cold" or "warm" (based on HSL)
 
 //// Color spaces conversions
 
-void WavelengthToXYZ(const double w, double &X, double &Y, double &Z); // wavelength to XYZ color space
+void WavelengthToXYZ(const double &w, double &X, double &Y, double &Z); // wavelength to XYZ color space
 void SpectralColorToRGB(const double &L, double &R, double &G, double &B); // roughly convert wavelength value 400-700 nm to RGB [0..1]
 
 void RGBtoHSV(const double &R, const double &G, const double &B, double& H, double& S, double &V, double &C); // convert RGB value to HSV
@@ -148,6 +163,9 @@ void LUVtoLCHuv(const double &u, const double &v, double &C, double &H); // conv
 void LCHuvToLUV(const double &C, const double &H, double &u, double &v); // convert from LCHuv to LUV - L is the same so no need to convert
 
 void XYZtoLMS(const double &X, const double &Y, const double &Z, double &L, double &M, double &S); // convert from XYZ to LMS
+
+void RGBtoCMYK(const double &R, const double &G, const double &B, double &C, double &M, double &Y, double &K); // convert from RGB to CMYK
+void CMYKtoRGB(const double &C, const double &M, const double &Y, const double &K, double &R, double &G, double &B); // convert from CMYK to RGB
 
 //// wavelength XYZ data
 

@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Dominant Colors in 3D color space</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/icons/axis-3d.png</normaloff>:/icons/axis-3d.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="button_quit">
     <property name="geometry">
@@ -22,6 +26,13 @@
       <width>111</width>
       <height>81</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="cursor">
      <cursorShape>PointingHandCursor</cursorShape>
@@ -81,7 +92,7 @@ QToolTip {
      </font>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current analyzed image filename&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Current image filename&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>
@@ -108,6 +119,14 @@ QToolTip {
       <height>81</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
     <property name="cursor">
      <cursorShape>PointingHandCursor</cursorShape>
     </property>
@@ -115,7 +134,7 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the computed results : the 3D view with dominant colors, quantized image, palette and CSV file of the palette with RGB values and others from the different color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the computed results : the 3D view with dominant colors, quantized image, palette and CSV file of the palette (with conversions to many color spaces), along with popular palette types for Photoshop, Corel Draw and Paintshop Pro&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
@@ -173,10 +192,10 @@ results</string>
     <widget class="QLabel" name="label_logo">
      <property name="geometry">
       <rect>
-       <x>13</x>
-       <y>25</y>
-       <width>21</width>
-       <height>21</height>
+       <x>10</x>
+       <y>10</y>
+       <width>32</width>
+       <height>32</height>
       </rect>
      </property>
      <property name="toolTip">
@@ -195,14 +214,14 @@ results</string>
     <widget class="QLabel" name="label_version">
      <property name="geometry">
       <rect>
-       <x>8</x>
-       <y>50</y>
+       <x>10</x>
+       <y>41</y>
        <width>31</width>
        <height>20</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;*v2: many bug fixes and options added - conversion formulas between color spaces checked against other calculators found on the internet&lt;/p&gt;&lt;p&gt;* v1: bug fixes + identify selected colors in 3D view&lt;/p&gt;&lt;p&gt;* v0.1: added several color spaces, cleaned up conversion functions, added sphere size control, etc&lt;/p&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v2.1: added filters to help getting the best dominant colors (percentage, greys). Better organized GUI. Added CMYK color space, and save popular palette formats for Photoshop, Paintshop Pro and Corel Draw&lt;/p&gt;&lt;p&gt;* v2: many bug fixes and options added - conversion formulas between color spaces checked against other calculators found on the internet&lt;/p&gt;&lt;p&gt;* v1: bug fixes + identify selected colors in 3D view&lt;/p&gt;&lt;p&gt;* v0.1: added several color spaces, cleaned up conversion functions, added sphere size control, etc&lt;/p&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -211,7 +230,7 @@ results</string>
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>v2</string>
+      <string>v2.1</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -226,45 +245,46 @@ results</string>
       <number>-1</number>
      </property>
     </widget>
-    <zorder>label_version</zorder>
+    <widget class="QLabel" name="label_about">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>241</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>3</number>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dominant colors&lt;br/&gt;in 3D color space&lt;/span&gt;&lt;br/&gt;by &lt;span style=&quot; color:#d89d1a;&quot;&gt;AbsurdePhoton&lt;/span&gt;&lt;a href=&quot;https://www.absurdephoton.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;www.absurdephoton.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <zorder>label_about</zorder>
     <zorder>label_logo</zorder>
-   </widget>
-   <widget class="QLabel" name="label_15">
-    <property name="geometry">
-     <rect>
-      <x>7</x>
-      <y>640</y>
-      <width>241</width>
-      <height>91</height>
-     </rect>
-    </property>
-    <property name="cursor">
-     <cursorShape>ArrowCursor</cursorShape>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Sunken</enum>
-    </property>
-    <property name="lineWidth">
-     <number>3</number>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Dominant colors&lt;br/&gt;in 3D color space&lt;/span&gt;&lt;br/&gt;by &lt;span style=&quot; color:#d89d1a;&quot;&gt;AbsurdePhoton&lt;/span&gt;&lt;a href=&quot;https::/www.absurdephoton.fr&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;&lt;br/&gt;www.absurdephoton.fr&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="openExternalLinks">
-     <bool>true</bool>
-    </property>
+    <zorder>label_version</zorder>
    </widget>
    <widget class="QSpinBox" name="spinBox_3D_rotate_x">
     <property name="geometry">
      <rect>
-      <x>545</x>
-      <y>174</y>
+      <x>554</x>
+      <y>34</y>
       <width>41</width>
       <height>20</height>
      </rect>
@@ -291,10 +311,10 @@ results</string>
    <widget class="QSlider" name="verticalSlider_3D_rotate_x">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>200</y>
+      <x>550</x>
+      <y>64</y>
       <width>29</width>
-      <height>531</height>
+      <height>661</height>
      </rect>
     </property>
     <property name="maximum">
@@ -313,7 +333,7 @@ results</string>
      <bool>true</bool>
     </property>
     <property name="tickPosition">
-     <enum>QSlider::TicksBelow</enum>
+     <enum>QSlider::TicksAbove</enum>
     </property>
     <property name="tickInterval">
      <number>15</number>
@@ -322,9 +342,9 @@ results</string>
    <widget class="QSlider" name="horizontalSlider_3D_rotate_y">
     <property name="geometry">
      <rect>
-      <x>620</x>
-      <y>0</y>
-      <width>691</width>
+      <x>600</x>
+      <y>4</y>
+      <width>711</width>
       <height>29</height>
      </rect>
     </property>
@@ -340,8 +360,14 @@ results</string>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
+    <property name="invertedAppearance">
+     <bool>false</bool>
+    </property>
+    <property name="invertedControls">
+     <bool>false</bool>
+    </property>
     <property name="tickPosition">
-     <enum>QSlider::TicksBelow</enum>
+     <enum>QSlider::TicksAbove</enum>
     </property>
     <property name="tickInterval">
      <number>15</number>
@@ -350,10 +376,10 @@ results</string>
    <widget class="openGLWidget" name="openGLWidget_3d">
     <property name="geometry">
      <rect>
-      <x>589</x>
-      <y>29</y>
-      <width>771</width>
-      <height>701</height>
+      <x>549</x>
+      <y>3</y>
+      <width>811</width>
+      <height>731</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -378,8 +404,8 @@ results</string>
    <widget class="QSpinBox" name="spinBox_3D_rotate_y">
     <property name="geometry">
      <rect>
-      <x>1320</x>
-      <y>4</y>
+      <x>1315</x>
+      <y>8</y>
       <width>41</width>
       <height>20</height>
      </rect>
@@ -406,8 +432,8 @@ results</string>
    <widget class="QPushButton" name="button_3d_reset">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>40</y>
+      <x>574</x>
+      <y>70</y>
       <width>35</width>
       <height>35</height>
      </rect>
@@ -458,14 +484,14 @@ QToolTip {
    <widget class="QSlider" name="verticalSlider_sphere_size">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>300</x>
       <y>680</y>
       <width>241</width>
       <height>51</height>
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size!&lt;/p&gt;&lt;p&gt;You can also use CTRL + mouse wheel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size&lt;/p&gt;&lt;p&gt;You can also use CTRL + mouse wheel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="minimum">
      <number>1</number>
@@ -498,7 +524,7 @@ QToolTip {
    <widget class="QComboBox" name="comboBox_color_space">
     <property name="geometry">
      <rect>
-      <x>357</x>
+      <x>337</x>
       <y>656</y>
       <width>151</width>
       <height>31</height>
@@ -567,9 +593,9 @@ QToolTip {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>170</y>
        <width>251</width>
-       <height>251</height>
+       <height>221</height>
       </rect>
      </property>
      <property name="maximumSize">
@@ -613,7 +639,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reduce the image size to 512 pixels to speed up computing.&lt;/p&gt;&lt;p&gt;It doesn't affect much the final result.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reduce the image size to 512 pixels to speed up computing.&lt;/p&gt;&lt;p&gt;It doesn't affect much the final result&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Reduce size</string>
@@ -632,7 +658,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply a 3x3 gaussian blur to the image before proceeding, particularly if you don't want to reduce the size.&lt;/p&gt;&lt;p&gt;It helps with noisy data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply a 3x3 gaussian blur to the image before proceeding, particularly if you don't want to reduce the size.&lt;/p&gt;&lt;p&gt;It helps with noisy images&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>Gaussian blur</string>
@@ -650,6 +676,14 @@ QToolTip {
        <height>61</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="cursor">
       <cursorShape>PointingHandCursor</cursorShape>
      </property>
@@ -657,7 +691,7 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the image to analyze&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the image to quantize&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
@@ -717,13 +751,13 @@ image</string>
      <property name="geometry">
       <rect>
        <x>14</x>
-       <y>26</y>
+       <y>10</y>
        <width>28</width>
        <height>28</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette.&lt;/p&gt;&lt;p&gt;If the number of colors of the image exceeds the asked number of computed dominant colors, it will be corrected and will appear in red&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette.&lt;/p&gt;&lt;p&gt;If the wanted number of dominant colors exceeds the number of available colors in the image, it will be corrected, and will appear in red&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string/>
@@ -739,7 +773,7 @@ image</string>
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>26</y>
+       <y>10</y>
        <width>71</width>
        <height>27</height>
       </rect>
@@ -944,7 +978,7 @@ image</string>
       </palette>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette.&lt;/p&gt;&lt;p&gt;If the number of colors of the image exceeds the asked number of computed dominant colors, it will be corrected and will appear in red&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of dominant colors in the palette.&lt;/p&gt;&lt;p&gt;If the wanted number of dominant colors exceeds the number of available colors in the image, it will be corrected, and will appear in red&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QSpinBox {
@@ -964,20 +998,20 @@ image</string>
       <number>1024</number>
      </property>
      <property name="value">
-      <number>3</number>
+      <number>5</number>
      </property>
     </widget>
     <widget class="QRadioButton" name="radioButton_k_means">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>40</y>
+       <x>146</x>
+       <y>30</y>
        <width>117</width>
        <height>22</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;K-means is a well-known method to approximate data.&lt;/p&gt;&lt;p&gt;It is slow, though.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;K-means is a well-known method to approximate data.&lt;/p&gt;&lt;p&gt;It is slow, though, and a bit inconsistent due to the randomness of the implementation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>&amp;K-means</string>
@@ -987,9 +1021,9 @@ image</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>140</y>
+       <y>170</y>
        <width>251</width>
-       <height>251</height>
+       <height>221</height>
       </rect>
      </property>
      <property name="maximumSize">
@@ -1005,7 +1039,7 @@ image</string>
       <bool>true</bool>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting quantized image after using the Compute button, using the new limited palette.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse any color on the quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;Use &amp;lt;CTRL&amp;gt; + left mouse button to select a color in the palette or Quantized image. It is shown in the Quantized image, and also in the 3D scene: the color sphere will have a white circle around it. Do this again to undo.&lt;/p&gt;&lt;p&gt;Use &amp;lt;ALT&amp;gt; + left mouse button to hide a color (click on the palette or Quantized image). It can be useful when a color sphere is too big and hides others from view. Do this again to undo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting quantized image after using the Quantize button, using the new limited palette.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse on any color in the quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;Use &amp;lt;CTRL&amp;gt; + left mouse button to select a color in the palette or Quantized image. It is shown in the Quantized image, and also in the 3D scene: the corresponding color sphere will have a white circle around it. Do this again to undo.&lt;/p&gt;&lt;p&gt;Use &amp;lt;ALT&amp;gt; + left mouse button to hide a color (click on the palette or Quantized image). It can be useful when a color sphere is too big and hides others from view. Do this again to undo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Panel</enum>
@@ -1026,11 +1060,19 @@ image</string>
     <widget class="QPushButton" name="button_compute">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>70</y>
+       <x>12</x>
+       <y>100</y>
        <width>131</width>
        <height>61</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="cursor">
       <cursorShape>PointingHandCursor</cursorShape>
@@ -1039,7 +1081,7 @@ image</string>
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results.&lt;/p&gt;&lt;p&gt;The 3d view is where the dominant colors of the chosen image are displayed. You can choose the color space in which colors are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyze how a photo or painting colors are distributed. You can easily perceive the color distribution in several color spaces.&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color on the palette or quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;- left click on the 3D color space to rotate the view on x/y axes - you can also use PageUp PageDown Home and End keys&lt;/p&gt;&lt;p&gt;- right-click with your mouse on the 3D view to move it on the x/y plane - also use the cursor keys on your keyboard&lt;/p&gt;&lt;p&gt;- CTRL with left mouse click to rotate the 3D view on the z axis - Insert and Delete keys also work for this&lt;/p&gt;&lt;p&gt;- CTRL with mouse wheel to change the sphere size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After loading an image and adjusting parameters, compute the results.&lt;/p&gt;&lt;p&gt;The 3d view is where the dominant colors of the chosen image are displayed. You can choose the color space in which colors are displayed.&lt;/p&gt;&lt;p&gt;It shows the dominant colors distribution, so it can help you analyze how a photo or painting colors are distributed. You can easily perceive the color distribution in several color spaces.&lt;/p&gt;&lt;p&gt;- you can left-click with your mouse on any color in the palette or quantized image, to get its RGB values (in decimal and hexadecimal) and percentage of use.&lt;/p&gt;&lt;p&gt;- left click on the 3D color space to rotate the view on x/y axes - you can also use PageUp PageDown Home and End keys&lt;/p&gt;&lt;p&gt;- right-click with your mouse on the 3D view to move it on the x/y plane - you can also use the cursor keys on your keyboard&lt;/p&gt;&lt;p&gt;- CTRL with left mouse click to rotate the 3D view on the z axis - Insert and Delete keys also work for this&lt;/p&gt;&lt;p&gt;- CTRL with mouse wheel to change the sphere size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
@@ -1061,7 +1103,7 @@ QToolTip {
 }</string>
      </property>
      <property name="text">
-      <string>COMPUTE</string>
+      <string>QUANTIZE</string>
      </property>
      <property name="icon">
       <iconset>
@@ -1078,14 +1120,14 @@ QToolTip {
     <widget class="QRadioButton" name="radioButton_eigenvectors">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>20</y>
+       <x>146</x>
+       <y>8</y>
        <width>117</width>
        <height>22</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Way faster than K-means&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Way faster than K-means, it always produces the same results&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
       <string>eigen &amp;vectors</string>
@@ -1098,13 +1140,13 @@ QToolTip {
      <property name="geometry">
       <rect>
        <x>152</x>
-       <y>90</y>
+       <y>119</y>
        <width>101</width>
        <height>23</height>
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elapsed time in seconds:milliseconds when the Compute button is used&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elapsed time in seconds:milliseconds when the Quantize button is used&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLCDNumber{ 
@@ -1131,6 +1173,286 @@ QToolTip {
      </property>
      <property name="intValue" stdset="0">
       <number>0</number>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_filter_grays">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>46</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, computing will ignore all gray &amp;quot;colors&amp;quot;, including near-whites and near-blacks.&lt;/p&gt;&lt;p&gt;It helps reducing the number of dominant colors found by eliminating dimly colored pixels&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Filter grays</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_filter_percent">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>70</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When checked, computing will ignore all colors representing less than x% of total colors.&lt;/p&gt;&lt;p&gt;It helps reducing the number of dominant colors found&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>Filter &lt; x%</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBox_nb_percentage">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>69</y>
+       <width>61</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="palette">
+      <palette>
+       <active>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Highlight">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>135</red>
+           <green>167</green>
+           <blue>82</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </active>
+       <inactive>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Highlight">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>135</red>
+           <green>167</green>
+           <blue>82</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </inactive>
+       <disabled>
+        <colorrole role="WindowText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Button">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Text">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="ButtonText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Window">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>255</red>
+           <green>255</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="Highlight">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>167</red>
+           <green>167</green>
+           <blue>167</blue>
+          </color>
+         </brush>
+        </colorrole>
+       </disabled>
+      </palette>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filter colors by this percentage.&lt;/p&gt;&lt;p&gt;When checked, computing will ignore all colors representing less than x% of total colors.&lt;/p&gt;&lt;p&gt;It helps reducing the number of dominant colors found&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QSpinBox {
+    color: black;
+}</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="keyboardTracking">
+      <bool>false</bool>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>50</number>
+     </property>
+     <property name="value">
+      <number>1</number>
      </property>
     </widget>
    </widget>
@@ -1167,7 +1489,7 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the name of the current picked color. If not exactly found in the database, it will show the nearest color using euclidian distance in RGB space.&lt;/p&gt;&lt;p&gt;Pick a color in the Palette or Quantized image to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the name of the current picked color. If not exactly found in the database, it will show the nearest color using euclidian distance in RGB space.&lt;/p&gt;&lt;p&gt;Pick a color in the Palette or Quantized image to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Panel</enum>
@@ -1195,7 +1517,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1250,7 +1572,7 @@ QToolTip {
       <bool>true</bool>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting palette after using the Compute button.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse any color on the palette, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;Use &amp;lt;CTRL&amp;gt; + left mouse button to select a color in the palette or Quantized image. It is shown in the Quantized image, and also in the 3D scene: the color sphere will have a white circle around it. Do this again to undo.&lt;/p&gt;&lt;p&gt;Use &amp;lt;ALT&amp;gt; + left mouse button to hide a color (click on the palette or Quantized image). It can be useful when a color sphere is too big and hides others from view. Do this again to undo.&lt;/p&gt;&lt;p&gt;You can sort the colors of the palette with the Sort button&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resulting palette after using the Compute button.&lt;/p&gt;&lt;p&gt;You can left-click with your mouse on any color in the palette, to get its RGB values (in decimal and hexadecimal) and percentage of use in the image.&lt;/p&gt;&lt;p&gt;Use &amp;lt;CTRL&amp;gt; + left mouse button to select a color in the palette or Quantized image. It is shown in the Quantized image, and also in the 3D scene: the color sphere will have a white circle around it. Do this again to undo.&lt;/p&gt;&lt;p&gt;Use &amp;lt;ALT&amp;gt; + left mouse button to hide a color (click on the palette or Quantized image). It can be useful when a color sphere is too big and hides others from view. Do this again to undo.&lt;/p&gt;&lt;p&gt;You can sort the colors of the palette with the Sort button&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Panel</enum>
@@ -1283,7 +1605,7 @@ QToolTip {
       </font>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the percentage of use in the Quantized image.&lt;/p&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the percentage of use of the selected color in the Quantized image.&lt;/p&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -1311,7 +1633,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1354,7 +1676,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Panel</enum>
@@ -1382,7 +1704,7 @@ QToolTip {
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pick a color to show it here.&lt;/p&gt;&lt;p&gt;RGB values are displayed in decimal and hexadecimal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLabel {
@@ -1510,7 +1832,7 @@ QToolTip {
       <enum>Qt::NoFocus</enum>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the selected color in palette converted to values in several color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the selected color in the palette, converted to values in several color spaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
@@ -1602,8 +1924,8 @@ QToolTip {
    <widget class="QPushButton" name="checkBox_3d_light">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>80</y>
+      <x>574</x>
+      <y>110</y>
       <width>35</width>
       <height>35</height>
      </rect>
@@ -1660,8 +1982,8 @@ QToolTip {
    <widget class="QPushButton" name="checkBox_3d_fullscreen">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>120</y>
+      <x>574</x>
+      <y>150</y>
       <width>35</width>
       <height>35</height>
      </rect>
@@ -1673,7 +1995,7 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the 3D scene in fullscreen mode.&lt;/p&gt;&lt;p&gt;Press &amp;quot;ESC&amp;quot; to return to windowed mode.&lt;/p&gt;&lt;p&gt;The save snapshot button is still available in full screen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the 3D scene in fullscreen mode.&lt;/p&gt;&lt;p&gt;Press &amp;quot;ESC&amp;quot; to return to windowed mode, or use the Close button.&lt;/p&gt;&lt;p&gt;The Save snapshot button is still available in full screen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="layoutDirection">
      <enum>Qt::LeftToRight</enum>
@@ -1721,7 +2043,7 @@ QToolTip {
    <widget class="QPushButton" name="button_save_3d">
     <property name="geometry">
      <rect>
-      <x>517</x>
+      <x>497</x>
       <y>654</y>
       <width>35</width>
       <height>35</height>
@@ -1770,10 +2092,10 @@ QToolTip {
      </size>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="label_color_space">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>320</x>
       <y>662</y>
       <width>21</width>
       <height>21</height>
@@ -1792,17 +2114,17 @@ QToolTip {
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_sphere_size">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>270</x>
       <y>695</y>
       <width>21</width>
       <height>21</height>
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Change the color spheres size&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string/>
@@ -1817,8 +2139,8 @@ QToolTip {
    <widget class="QSpinBox" name="spinBox_3D_rotate_z">
     <property name="geometry">
      <rect>
-      <x>544</x>
-      <y>4</y>
+      <x>554</x>
+      <y>10</y>
       <width>41</width>
       <height>20</height>
      </rect>
@@ -1858,7 +2180,7 @@ QToolTip {
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exit fullscreen 3d view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exit fullscreen 3D view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
@@ -1894,6 +2216,7 @@ QToolTip {
      </size>
     </property>
    </widget>
+   <zorder>frame_about</zorder>
    <zorder>openGLWidget_3d</zorder>
    <zorder>frame_image</zorder>
    <zorder>checkBox_3d_fullscreen</zorder>
@@ -1901,7 +2224,6 @@ QToolTip {
    <zorder>frame_compute</zorder>
    <zorder>button_quit</zorder>
    <zorder>button_save</zorder>
-   <zorder>frame_about</zorder>
    <zorder>spinBox_3D_rotate_x</zorder>
    <zorder>verticalSlider_3D_rotate_x</zorder>
    <zorder>horizontalSlider_3D_rotate_y</zorder>
@@ -1911,12 +2233,11 @@ QToolTip {
    <zorder>comboBox_color_space</zorder>
    <zorder>label_filename</zorder>
    <zorder>checkBox_3d_light</zorder>
-   <zorder>label</zorder>
-   <zorder>label_2</zorder>
+   <zorder>label_color_space</zorder>
+   <zorder>label_sphere_size</zorder>
    <zorder>spinBox_3D_rotate_z</zorder>
    <zorder>button_save_3d</zorder>
    <zorder>button_3d_exit_fullscreen</zorder>
-   <zorder>label_15</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
