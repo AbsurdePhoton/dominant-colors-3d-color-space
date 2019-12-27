@@ -121,7 +121,7 @@ void MainWindow::InitializeValues() // Global variables init
         else basedir = "/home/"; // default base path and file
     basefile = "example";
 
-    // read color names form .csv file
+    // read color names from .csv file
     std::string line; // line to read in text file
     ifstream names; // file to read
     names.open("color-names.csv"); // read color names file
@@ -335,6 +335,14 @@ void MainWindow::keyPressEvent(QKeyEvent *keyEvent) // keyboard events
         ui->openGLWidget_3d->resize(QSize(saveWidthOpenGL, saveHeightOpenGL)); // ... and size
         ui->checkBox_3d_fullscreen->setChecked(false); // uncheck fullscreen button
         ui->button_3d_exit_fullscreen->setVisible(false); // hide exit button
+        ui->spinBox_3D_rotate_x->raise(); // bring back 3D controls over 3D view
+        ui->spinBox_3D_rotate_y->raise();
+        ui->spinBox_3D_rotate_z->raise();
+        ui->horizontalSlider_3D_rotate_y->raise();
+        ui->verticalSlider_3D_rotate_x->raise();
+        ui->button_3d_reset->raise();
+        ui->checkBox_3d_light->raise();
+        ui->checkBox_3d_fullscreen->raise();
     }
 
     // controls for 3D view

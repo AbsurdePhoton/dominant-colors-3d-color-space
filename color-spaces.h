@@ -26,6 +26,8 @@
 #ifndef COLORSPACES
 #define COLORSPACES
 
+#include <string>
+
 //// palette
 
 struct struct_rgb {

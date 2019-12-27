@@ -360,6 +360,14 @@ void DrawLinesFromMatrix(const Mat &matrix, const float &x0, const float &y0, co
 //// Draw text from string
 ///////////////////////////////////////////////
 
+int checkCharacter(const int &c, const int &x, const int &y)
+{
+    if ((x < 0) or (y < 0) or (x >= characters_matrix_cols) or (y >= characters_matrix_rows))
+        return 0;
+    else
+        return characters[c].data[x][y];
+}
+
 void DrawChar(const uchar ch, const float &x0, const float &y0, const float &z0, const float &scale, const float &R, const float &G, const float &B, const float &width)
 {
     if ((ch < characters_begin) or (ch > characters_end))
@@ -371,25 +379,25 @@ void DrawChar(const uchar ch, const float &x0, const float &y0, const float &z0,
     glBegin(GL_LINES);
         for (int x = 0; x < characters_matrix_cols; x++) // down
             for (int y = 0; y < characters_matrix_rows - 1; y++)
-                if ((characters[c].data[x][y] != 0) & (characters[c].data[x][y + 1] != 0)) {
+                if ((characters[c].data[x][y] != 0) & (checkCharacter(c, x, y + 1) != 0)) {
                     glVertex3f(scale * x + x0, scale * y + y0, z0);
                     glVertex3f(scale * x + x0, scale * (y + 1) + y0, z0);
                 }
         for (int x = 0; x < characters_matrix_cols - 1; x++) // right
             for (int y = 0; y < characters_matrix_rows; y++)
-                if ((characters[c].data[x][y] != 0) & (characters[c].data[x + 1][y] != 0)) {
+                if ((characters[c].data[x][y] != 0) & (checkCharacter(c, x + 1, y) != 0)) {
                     glVertex3f(scale * x + x0, scale * y + y0, z0);
                     glVertex3f(scale * (x + 1) + x0, scale * y + y0, z0);
                 }
         for (int x = 0; x < characters_matrix_cols - 1; x++) // down-right
             for (int y = 0; y < characters_matrix_rows - 1; y++)
-                if ((characters[c].data[x][y] != 0) & (characters[c].data[x + 1][y + 1] != 0) & (characters[c].data[x + 1][y] == 0) & (characters[c].data[x][y + 1] == 0)) {
+                if ((characters[c].data[x][y] != 0) & (checkCharacter(c, x + 1, y + 1) != 0) & (checkCharacter(c, x + 1, y) == 0) & (checkCharacter(c, x, y + 1) == 0)) {
                     glVertex3f(scale * x + x0, scale * y + y0, z0);
                     glVertex3f(scale * (x + 1) + x0, scale * (y + 1) + y0, z0);
                 }
         for (int x = 1; x < characters_matrix_cols; x++) // down-left
             for (int y = 0; y < characters_matrix_rows - 1; y++)
-                if ((characters[c].data[x][y] != 0) & (characters[c].data[x - 1][y + 1] != 0) & (characters[c].data[x - 1][y] == 0) & (characters[c].data[x][y + 1] == 0)) {
+                if ((characters[c].data[x][y] != 0) & (checkCharacter(c, x - 1, y + 1) != 0) & (checkCharacter(c, x - 1, y) == 0) & (checkCharacter(c, x, y + 1) == 0)) {
                     glVertex3f(scale * x + x0, scale * y + y0, z0);
                     glVertex3f(scale * (x - 1) + x0, scale * (y + 1) + y0, z0);
                 }
@@ -399,9 +407,9 @@ void DrawChar(const uchar ch, const float &x0, const float &y0, const float &z0,
         for (int x = 0; x < characters_matrix_cols; x++) // down-left
             for (int y = 0; y < characters_matrix_rows; y++)
                 if ((characters[c].data[x][y] != 0)
-                        & (characters[c].data[x - 1][y - 1] == 0) & (characters[c].data[x][y - 1] == 0) & (characters[c].data[x + 1][y - 1] == 0)
-                        & (characters[c].data[x - 1][y] == 0) & (characters[c].data[x + 1][y] == 0)
-                        & (characters[c].data[x - 1][y + 1] == 0) & (characters[c].data[x][y + 1] == 0) & (characters[c].data[x + 1][y + 1] == 0)) {
+                        & (checkCharacter(c, x - 1, y - 1) == 0) & (checkCharacter(c, x, y - 1) == 0) & (checkCharacter(c, x + 1, y - 1) == 0)
+                        & (checkCharacter(c, x - 1, y) == 0) & (checkCharacter(c, x + 1, y) == 0)
+                        & (checkCharacter(c, x - 1, y + 1) == 0) & (checkCharacter(c, x, y + 1) == 0) & (checkCharacter(c, x + 1, y + 1) == 0)) {
                     //DrawCircleXY(scale * x + x0, scale * y + y0, z0 , 4, 10, 1, 1, 1, 4);
                     DrawSphere(3, width, scale * x + x0, -scale * y - y0, z0, R, G, B);
                 }
