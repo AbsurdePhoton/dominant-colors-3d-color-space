@@ -18,6 +18,7 @@
 #include <QDesktopWidget>
 #include <QCursor>
 #include <QMouseEvent>
+#include <QWhatsThis>
 
 //#include "mat-image-tools.h"
 #include "dominant-colors.h"
@@ -154,6 +155,11 @@ void MainWindow::InitializeValues() // Global variables init
     else {
         QMessageBox::critical(this, "Colors CSV file not found!", "You forgot to put 'color-names.csv' in the same folder as the executable! This tool will crash as soon as you quantize an image...");
     }
+}
+
+void MainWindow::on_button_whats_this_clicked() // What's this function
+{
+    QWhatsThis::enterWhatsThisMode();
 }
 
 void MainWindow::on_button_quit_clicked() // quit GUI
@@ -307,7 +313,7 @@ void MainWindow::on_button_save_3d_clicked() // save current view of 3D color sp
 {
     QString filename = QFileDialog::getSaveFileName(this, "Save image file",
                                                     QString::fromStdString(basedir + basefile + "-color-space-" + ui->openGLWidget_3d->color_space + ".png"),
-                                                    "PNG (*.png *.PNG)"); // image filename
+                                                    tr("PNG (*.png")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 
@@ -386,7 +392,7 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
             const QPixmap* q = ui->label_palette->pixmap(); // stored reduced quantized image in GUI
             int x = round(palette.cols * double(mouse_pos.x() - (ui->label_palette->width() - q->width()) / 2) / double(q->width())); // real x position in palette image
             int y = round(palette.rows * double(mouse_pos.y() - (ui->label_palette->height() - q->height()) / 2) / double(q->height())); // real y position in palette image
-            if ((x > 0) and (x <= palette.cols) and (y > 0) and (y <= palette.rows)) {
+            if ((x > 0) and (x < palette.cols) and (y > 0) and (y < palette.rows)) {
                 color = palette.at<Vec3b>(0, x); // pick color in palette
                 color_found = true; // found !
             }
@@ -404,7 +410,7 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
             double percentX = double(mouse_pos.x() - (ui->label_quantized->width() - q->width()) / 2) / double(q->width()); // real x and y position in quantized image
             double percentY = double(mouse_pos.y() - (ui->label_quantized->height() - q->height()) / 2) / double(q->height());
 
-            if ((percentX >= 0) and (percentX <= 1) and (percentY >= 0) and (percentY <= 1)) {
+            if ((percentX >= 0) and (percentX < 1) and (percentY >= 0) and (percentY < 1)) {
                 color = quantized.at<Vec3b>(round(percentY * quantized.rows), round(percentX * quantized.cols)); // pick color in quantized image at x,y
                 color_found = true; // found !
             }
@@ -490,7 +496,7 @@ void MainWindow::ChangeBaseDir(QString filename) // set base dir and file
 void MainWindow::on_button_load_image_clicked() // load image to analyze
 {
     QString filename = QFileDialog::getOpenFileName(this, "Load image...", QString::fromStdString(basedir),
-                                                    "Images (*.jpg *.JPG *.jpeg *.JPEG *.jp2 *.JP2 *.png *.PNG *.tif *.TIF *.tiff *.TIFF *.bmp *.BMP)"); // image file name
+                                                    tr("Images (*.jpg *.jpeg *.jp2 *.png *.tif *.tiff)")); // image file name
 
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
@@ -536,7 +542,7 @@ void MainWindow::on_button_load_image_clicked() // load image to analyze
 
 void MainWindow::on_button_save_clicked() // save dominant colors results
 {
-    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), "PNG (*.png *.PNG)"); // image filename
+    QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), tr("PNG (*.png *.PNG)")); // image filename
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
 

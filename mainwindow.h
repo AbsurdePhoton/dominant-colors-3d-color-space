@@ -52,6 +52,7 @@ private slots:
 
     //// quit
     void on_button_quit_clicked(); // quit GUI
+    void on_button_whats_this_clicked(); // What's this function
 
     //// load & save
     void ChangeBaseDir(QString filename); // set base dir and file
