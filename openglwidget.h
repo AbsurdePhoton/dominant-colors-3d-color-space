@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#               v2 - 2019/11/08
+#               v2.3 - 2023/03/10
 #     - Lights
 #     - Mouse control :
 #         . zoom with wheel
@@ -28,9 +28,10 @@
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
 #include <QOpenGLTexture>
+
 #include "opencv2/opencv.hpp"
-#include "dominant-colors.h"
-#include "color-spaces.h"
+
+#include "palette.h"
 
 class openGLWidget : public QOpenGLWidget
 {

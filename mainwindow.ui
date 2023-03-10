@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1914</width>
-    <height>1074</height>
+    <width>1912</width>
+    <height>1072</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -236,7 +236,7 @@ results</string>
       <string/>
      </property>
      <property name="whatsThis">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v2.1: added filters to help getting the best dominant colors (percentage, greys). Better organized GUI. Added CMYK color space, and save popular palette formats for Photoshop, Paintshop Pro and Corel Draw&lt;/p&gt;&lt;p&gt;* v2: many bug fixes and options added - conversion formulas between color spaces checked against other calculators found on the internet&lt;/p&gt;&lt;p&gt;* v1: bug fixes + identify selected colors in 3D view&lt;/p&gt;&lt;p&gt;* v0.1: added several color spaces, cleaned up conversion functions, added sphere size control, etc&lt;/p&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;* v2.3: added .cube LUT loading&lt;/p&gt;&lt;p&gt;* v2.1: added filters to help getting the best dominant colors (percentage, greys). Better organized GUI. Added CMYK color space, and save popular palette formats for Photoshop, Paintshop Pro and Corel Draw&lt;/p&gt;&lt;p&gt;* v2: many bug fixes and options added - conversion formulas between color spaces checked against other calculators found on the internet&lt;/p&gt;&lt;p&gt;* v1: bug fixes + identify selected colors in 3D view&lt;/p&gt;&lt;p&gt;* v0.1: added several color spaces, cleaned up conversion functions, added sphere size control, etc&lt;/p&gt;&lt;p&gt;* v0: launch&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -245,7 +245,7 @@ results</string>
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>v2.1</string>
+      <string>v2.3</string>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -610,7 +610,8 @@ QComboBox::down-arrow {
 QComboBox QAbstractItemView {
 	border: 2px solid lightgray;
 	color: rgb(255,255,255);
-	selection-color: rgb(0,0,0);
+    background:black;
+	selection-color: rgb(255,255,255);
 	selection-background-color: rgb(64,64,64);
 }
 
@@ -688,7 +689,7 @@ QToolTip {
      <property name="geometry">
       <rect>
        <x>140</x>
-       <y>74</y>
+       <y>54</y>
        <width>111</width>
        <height>22</height>
       </rect>
@@ -710,7 +711,7 @@ QToolTip {
      <property name="geometry">
       <rect>
        <x>140</x>
-       <y>100</y>
+       <y>80</y>
        <width>121</width>
        <height>22</height>
       </rect>
@@ -732,7 +733,7 @@ QToolTip {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>67</y>
+       <y>47</y>
        <width>121</width>
        <height>61</height>
       </rect>
@@ -850,6 +851,69 @@ QToolTip {
      </property>
      <property name="checked">
       <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_load_lut">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>121</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Load the image to quantize&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #FFFFFF, stop: 1 #E0E0E0);
+	border-radius: 10px;
+	border: 2px outset #8f8f91;
+	color rgb(0,0,0);
+}
+QPushButton:pressed {
+	border: 2px inset #8f8f91;
+}
+QToolTip {
+    border:2px solid black;
+	padding:5px;
+	background-color:rgb(64,64,64);
+	color:white;
+	font-size: 14px;
+}</string>
+     </property>
+     <property name="text">
+      <string> Load
+  LUT</string>
+     </property>
+     <property name="icon">
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/lut.png</normaloff>:/icons/lut.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
      </property>
     </widget>
    </widget>
@@ -974,6 +1038,15 @@ QToolTip {
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </active>
        <inactive>
         <colorrole role="WindowText">
@@ -1039,6 +1112,15 @@ QToolTip {
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -1101,6 +1183,15 @@ QToolTip {
            <red>167</red>
            <green>167</green>
            <blue>167</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -1452,6 +1543,15 @@ QToolTip {
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </active>
        <inactive>
         <colorrole role="WindowText">
@@ -1517,6 +1617,15 @@ QToolTip {
           </color>
          </brush>
         </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
+          </color>
+         </brush>
+        </colorrole>
        </inactive>
        <disabled>
         <colorrole role="WindowText">
@@ -1579,6 +1688,15 @@ QToolTip {
            <red>167</red>
            <green>167</green>
            <blue>167</blue>
+          </color>
+         </brush>
+        </colorrole>
+        <colorrole role="PlaceholderText">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </colorrole>
@@ -1990,7 +2108,8 @@ QComboBox::down-arrow {
 QComboBox QAbstractItemView {
 	border: 2px solid lightgray;
 	color: rgb(255,255,255);
-	selection-color: rgb(0,0,0);
+    background:black;
+	selection-color: rgb(255,255,255);
 	selection-background-color: rgb(64,64,64);
 }
 

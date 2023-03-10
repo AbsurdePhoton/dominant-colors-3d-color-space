@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v2 - 2019/11/08
+#                v2.3 - 2023/03/10
 #
 #-------------------------------------------------*/
 
@@ -20,9 +20,8 @@
 #include "opencv2/core/utility.hpp"
 #include <QMainWindow>
 #include <QFileDialog>
-#include <QTime>
+#include <QElapsedTimer>
 
-#include "mat-image-tools.h"
 #include "openglwidget.h"
 
 namespace Ui {
@@ -38,7 +37,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QTime timer;
+    QElapsedTimer timer;
 
     int saveXOpenGL, saveYOpenGL, saveWidthOpenGL, saveHeightOpenGL; // for fullscreen and widget resizing
     int saveXButtonSave, saveYButtonSave; // for fullscreen, save button position
@@ -60,6 +59,7 @@ private slots:
 
     //// GUI
     void on_button_load_image_clicked(); // load image to analyze
+    void on_button_load_lut_clicked(); // load .cube LUT to analyze
     void on_button_compute_clicked(); // compute dominant colors
     void on_button_save_clicked(); // save results
     void on_button_3d_reset_clicked(); // // recenter position & zoom for 3D scene for each color space

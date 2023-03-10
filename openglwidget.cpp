@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#               v2 - 2019/11/08
+#               v2.3 - 2023/03/10
 #     - Lights
 #     - Mouse control :
 #         . zoom with wheel
@@ -27,9 +27,13 @@
 #include <QtOpenGL>
 
 #include "opencv2/opencv.hpp"
+
 #include "openglwidget.h"
-#include "mat-image-tools.h"
 #include "opengl-draw.h"
+#include "lib/image-utils.h"
+#include "lib/angles.h"
+#include "lib/color-spaces.h"
+
 
 using namespace cv;
 using namespace std;
@@ -727,7 +731,7 @@ void openGLWidget::paintGL() // 3D rendering
         }
     }
 
-    if (color_space == "CIE L*a*b*") { // LAB
+    if ((color_space == "CIE L*a*b*") or (color_space == "OKLAB")) { // LAB
         // vertical L axis
         glLineWidth(32);
         glBegin(GL_LINES); // vertical axis
@@ -766,16 +770,30 @@ void openGLWidget::paintGL() // 3D rendering
         DrawText("-b", -60.0f, size3d + 250, 0.0f, 15, 0, 0, 1, 4);
 
         // color boundaries
-        DrawCMFinLab(size3d);
+        if (color_space == "CIE L*a*b*")
+            DrawCMFinLab(size3d);
+        else if (color_space == "OKLAB")
+            DrawCMFinOKLAB(size3d);
 
         // values
-        for (int n = 0; n < nb_palettes;n++) // for each color in palette
-            DrawSpherePlus(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
-                       -palettes[n].CIELAB.A * size3d,
-                       palettes[n].CIELAB.B * size3d,
-                       palettes[n].CIELAB.L * size3d,
-                       palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B,
-                       palettes[n].selected, palettes[n].visible);
+        if (color_space == "CIE L*a*b*") {
+            for (int n = 0; n < nb_palettes;n++) // for each color in palette
+                DrawSpherePlus(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
+                           -palettes[n].CIELAB.A * size3d,
+                           palettes[n].CIELAB.B * size3d,
+                           palettes[n].CIELAB.L * size3d,
+                           palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B,
+                           palettes[n].selected, palettes[n].visible);
+        }
+        else if (color_space == "OKLAB") {
+            for (int n = 0; n < nb_palettes;n++) // for each color in palette
+                DrawSpherePlus(3, palettes[n].percentage * size3d * nb_palettes / 500.0f * sphere_size,
+                           -palettes[n].OKLAB.A * size3d,
+                           palettes[n].OKLAB.B * size3d,
+                           palettes[n].OKLAB.L * size3d,
+                           palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B,
+                           palettes[n].selected, palettes[n].visible);
+        }
     }
 
     if (color_space == "Hunter Lab") { // Hunter LAB
@@ -1056,26 +1074,26 @@ void openGLWidget::ConvertPaletteFromRGB() // convert entire palette values in c
 
         // L*u*v*
         double u, v;
-        XYZtoLuv(X, Y, Z, L, u, v);
+        XYZtoCIELuv(X, Y, Z, L, u, v);
         palettes[n].LUV.L = L;
         palettes[n].LUV.u = u;
         palettes[n].LUV.v = v;
 
         // LCHuv
-        LUVtoLCHuv(u, v, C, H); // convert LUV to LCHuv values
+        CIELuvToCIELCHuv(u, v, C, H); // convert LUV to LCHuv values
         palettes[n].LCHUV.L = L;
         palettes[n].LCHUV.C = C;
         palettes[n].LCHUV.H = H;
 
         // L*A*B*
         double A;
-        XYZtoLAB(X, Y, Z, L, A, B); // convert XYZ to LAB values
-        palettes[n].CIELAB.L = L;std::string hexa;
+        XYZtoCIELab(X, Y, Z, L, A, B); // convert XYZ to LAB values
+        palettes[n].CIELAB.L = L;
         palettes[n].CIELAB.A = A;
         palettes[n].CIELAB.B = B;
 
         // LCHab
-        LABtoLCHab(A, B, C, H); // convert LAB to LCHab values
+        CIELabToCIELCHab(A, B, C, H); // convert LAB to LCHab values
         palettes[n].LCHAB.L = L;
         palettes[n].LCHAB.C = C;
         palettes[n].LCHAB.H = H;
@@ -1085,6 +1103,16 @@ void openGLWidget::ConvertPaletteFromRGB() // convert entire palette values in c
         palettes[n].HLAB.L = L;
         palettes[n].HLAB.A = A;
         palettes[n].HLAB.B = B;
+
+        // OKLAB and OKLCH
+        RGBtoOKLAB(palettes[n].RGB.R, palettes[n].RGB.G, palettes[n].RGB.B, L, A, B); // convert RGB to OKLAB values
+        palettes[n].OKLAB.L = L;
+        palettes[n].OKLAB.A = A;
+        palettes[n].OKLAB.B = B;
+        OKLABtoOKLCH(A, B, C, H); // convert OKLAB to OKLCH
+        palettes[n].OKLCH.L = L;
+        palettes[n].OKLCH.C = C;
+        palettes[n].OKLCH.H = H;
 
         // LMS
         double M;
@@ -1228,8 +1256,8 @@ void openGLWidget::mousePressEvent(QMouseEvent *event) // save initial mouse pos
 
 void openGLWidget::mouseMoveEvent(QMouseEvent *event) // move and rotate view with mouse buttons
 {
-    int dx = event->x() - lastPos.x(); // how much the mouse has moved in pixels
-    int dy = event->y() - lastPos.y();
+    int dx = event->position().x() - lastPos.x(); // how much the mouse has moved in pixels
+    int dy = event->position().y() - lastPos.y();
 
     bool key_control = QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ControlModifier); // modifier keys pressed ? (shift control etc)
 
@@ -1254,7 +1282,7 @@ void openGLWidget::wheelEvent(QWheelEvent *event) // zoom
 {
     bool key_control = QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ControlModifier); // modifier keys pressed ? (shift control etc)
 
-    int n = event->delta(); // amount of wheel turn
+    int n = event->angleDelta().y(); // amount of wheel turn
     //zoom3D += n / 120 / 2; // should work with this (standard) value
 
     if (key_control) {

@@ -5,7 +5,7 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v2 - 2019/11/08
+#                v2.3 - 2023/03/10
 #
 #-------------------------------------------------*/
 
@@ -15,13 +15,22 @@
 #include <QMessageBox>
 #include <QSizeGrip>
 #include <QGridLayout>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 #include <QCursor>
 #include <QMouseEvent>
 #include <QWhatsThis>
 
-//#include "mat-image-tools.h"
-#include "dominant-colors.h"
+#include <fstream>
+#include <thread>
+#include <omp.h>
+
+#include "widgets/file-dialog.h"
+#include "lib/dominant-colors.h"
+#include "lib/image-transform.h"
+#include "lib/image-color.h"
+#include "lib/color-spaces.h"
+#include "lib/image-utils.h"
+#include "lib/image-lut.h"
 
 using namespace cv;
 using namespace cv::ximgproc;
@@ -34,6 +43,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // numeric dot vs comma
+    std::setlocale(LC_NUMERIC,"C"); // dot as numeric separator for decimal values - some countries use commas
+
+    // number of processors
+    int processor_threads = std::thread::hardware_concurrency(); // find how many processor threads in the system
+    omp_set_num_threads(processor_threads/* / 2*/ - 1); // set usable threads for OMP
 
     // window
     setWindowFlags((((windowFlags() | Qt::CustomizeWindowHint)
@@ -56,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox_color_space->addItem(tr("HWB"));
     ui->comboBox_color_space->addItem(tr("CIE L*a*b*"));
     ui->comboBox_color_space->addItem(tr("CIE L*u*v*"));
+    ui->comboBox_color_space->addItem(tr("OKLAB"));
     ui->comboBox_color_space->addItem(tr("----------"));
     ui->comboBox_color_space->addItem(tr("RGB Triangle"));
     ui->comboBox_color_space->addItem(tr("HCV"));
@@ -121,6 +138,9 @@ void MainWindow::InitializeValues() // Global variables init
     }
         else basedir = "/home/"; // default base path and file
     basefile = "example";
+
+    quantized = cv::Mat();
+    palette = cv::Mat();
 
     // read color names from .csv file
     std::string line; // line to read in text file
@@ -216,10 +236,10 @@ void MainWindow::on_button_3d_reset_clicked() // recenter position & zoom for 3D
         ui->openGLWidget_3d->SetYRotation(0);
         ui->openGLWidget_3d->SetZRotation(-90);
     }
-    if ((ui->openGLWidget_3d->color_space == "CIE L*a*b*") or (ui->openGLWidget_3d->color_space == "Hunter Lab")) {
+    if ((ui->openGLWidget_3d->color_space == "CIE L*a*b*") or (ui->openGLWidget_3d->color_space == "Hunter Lab") or (ui->openGLWidget_3d->color_space == "OKLAB")) {
         ui->openGLWidget_3d->SetXRotation(290);
         ui->openGLWidget_3d->SetYRotation(0);
-        ui->openGLWidget_3d->SetZRotation(310);
+        ui->openGLWidget_3d->SetZRotation(120);
     }
     if (ui->openGLWidget_3d->color_space == "CIE xyY") {
         ui->openGLWidget_3d->SetXRotation(210);
@@ -256,7 +276,7 @@ void MainWindow::on_checkBox_3d_fullscreen_clicked() // view 3D scene fullscreen
     ui->button_3d_exit_fullscreen->setVisible(true); // show exit button
     ui->button_3d_exit_fullscreen->raise(); // bring this button to front, above all other objects
 
-    QRect screenSize = qApp->desktop()->availableGeometry(qApp->desktop()->primaryScreen()); // get screen size in which app is run
+    QRect screenSize = QGuiApplication::primaryScreen()->geometry(); // get screen size in which app is run
     int newW = screenSize.width(); // set 3D widget size to screen
     int newH = screenSize.height();
 
@@ -389,9 +409,9 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
         mouse_pos = ui->label_palette->mapFromGlobal(QCursor::pos()); // mouse position
 
         if ((mouseButton == Qt::LeftButton) and (!palette.empty())) { // mouse left button clicked
-            const QPixmap* q = ui->label_palette->pixmap(); // stored reduced quantized image in GUI
-            int x = round(palette.cols * double(mouse_pos.x() - (ui->label_palette->width() - q->width()) / 2) / double(q->width())); // real x position in palette image
-            int y = round(palette.rows * double(mouse_pos.y() - (ui->label_palette->height() - q->height()) / 2) / double(q->height())); // real y position in palette image
+            const QPixmap q = ui->label_palette->pixmap(); // stored reduced quantized image in GUI
+            int x = round(palette.cols * double(mouse_pos.x() - (ui->label_palette->width() - q.width()) / 2) / double(q.width())); // real x position in palette image
+            int y = round(palette.rows * double(mouse_pos.y() - (ui->label_palette->height() - q.height()) / 2) / double(q.height())); // real y position in palette image
             if ((x > 0) and (x < palette.cols) and (y > 0) and (y < palette.rows)) {
                 color = palette.at<Vec3b>(0, x); // pick color in palette
                 color_found = true; // found !
@@ -405,10 +425,10 @@ void MainWindow::mousePressEvent(QMouseEvent *eventPress) // event triggered by 
         mouse_pos = ui->label_quantized->mapFromGlobal(QCursor::pos()); // mouse position
 
         if ((mouseButton == Qt::LeftButton) and (!quantized.empty())) { // mouse left button clicked
-            const QPixmap* q = ui->label_quantized->pixmap(); // stored reduced quantized image in GUI
+            const QPixmap q = ui->label_quantized->pixmap(); // stored reduced quantized image in GUI
 
-            double percentX = double(mouse_pos.x() - (ui->label_quantized->width() - q->width()) / 2) / double(q->width()); // real x and y position in quantized image
-            double percentY = double(mouse_pos.y() - (ui->label_quantized->height() - q->height()) / 2) / double(q->height());
+            double percentX = double(mouse_pos.x() - (ui->label_quantized->width() - q.width()) / 2) / double(q.width()); // real x and y position in quantized image
+            double percentY = double(mouse_pos.y() - (ui->label_quantized->height() - q.height()) / 2) / double(q.height());
 
             if ((percentX >= 0) and (percentX < 1) and (percentY >= 0) and (percentY < 1)) {
                 color = quantized.at<Vec3b>(round(percentY * quantized.rows), round(percentX * quantized.cols)); // pick color in quantized image at x,y
@@ -495,8 +515,10 @@ void MainWindow::ChangeBaseDir(QString filename) // set base dir and file
 
 void MainWindow::on_button_load_image_clicked() // load image to analyze
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Load image...", QString::fromStdString(basedir),
-                                                    tr("Images (*.jpg *.jpeg *.jp2 *.png *.tif *.tiff)")); // image file name
+    PreviewFileDialog* mpOpenDialog = new PreviewFileDialog(this, "Load image...", QString::fromStdString(basedir), tr("Images (*.jpg *.jpeg *.jp2 *.png *.tif *.tiff *.webp)"));
+    QString filename = mpOpenDialog->GetSelectedFile();
+    /*QString filename = QFileDialog::getOpenFileName(this, "Load image...", QString::fromStdString(basedir),
+                                                    tr("Images (*.jpg *.jpeg *.jp2 *.png *.tif *.tiff)")); // image file name*/
 
     if (filename.isNull() || filename.isEmpty()) // cancel ?
         return;
@@ -540,6 +562,104 @@ void MainWindow::on_button_load_image_clicked() // load image to analyze
     ui->label_color_name->setText("");
 }
 
+void MainWindow::on_button_load_lut_clicked() // load .cube LUT to analyze
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Load Cube LUT...", QString::fromStdString(basedir),
+                                                    tr("LUT (*.cube *.CUBE)"), NULL, QFileDialog::DontUseNativeDialog); // .cube LUT file name
+
+    if (filename.isNull() || filename.isEmpty()) // cancel ?
+        return;
+
+    ChangeBaseDir(filename); // save current path to ini file
+
+    std::string filesession = filename.toUtf8().constData(); // base file name
+
+    // Cube LUT
+    CubeLUT cube; // new cube
+    std::ifstream cubeFile; // file for this cube
+    cubeFile.open(filesession, std::ifstream::in); // open cube file
+    bool ok = cubeFile.is_open(); // indicator
+
+    if (ok) { // file loaded successfully
+        CubeLUT::LUTState state = cube.LoadCubeFile(cubeFile);
+
+        if (state == CubeLUT::OK) {
+            QApplication::setOverrideCursor(Qt::WaitCursor); // wait cursor
+            timer.start(); // start of elapsed time
+            ShowTimer(true); // show elapsed time
+            qApp->processEvents();
+
+            if (!cube.LUT1D.empty()) {
+                image = cv::Mat::zeros(1, cube.LUT1D.size(), CV_8UC3);
+                cv::Vec3b* imageP = image.ptr<cv::Vec3b>(0);
+                for (int n = 0; n < int(cube.LUT1D.size()); n++) {
+                    imageP[n] = cv::Vec3b(cube.LUT1D[n][2] * 255.0, cube.LUT1D[n][1] * 255.0, cube.LUT1D[n][0] * 255.0);
+                }
+            }
+            else if (!cube.LUT3D.empty()) {
+                image = cv::Mat::zeros(1, cube.LUT3D[0].size() * cube.LUT3D[0].size() * cube.LUT3D[0].size(), CV_8UC3);
+                cv::Vec3b* imageP = image.ptr<cv::Vec3b>(0);
+                int n = 0;
+                for (int x = 0; x < int(cube.LUT3D[0].size()); x++) {
+                    for (int y = 0; y < int(cube.LUT3D[1].size()); y++) {
+                        for (int z = 0; z < int(cube.LUT3D[2].size()); z++) {
+                            imageP[n] = cv::Vec3b(cube.LUT3D[x][y][z][2] * 255.0, cube.LUT3D[x][y][z][1] * 255.0, cube.LUT3D[x][y][z][0] * 255.0);
+                            n++;
+                        }
+                    }
+                }
+            }
+            else {
+                ShowTimer(false); // show elapsed time
+                QApplication::restoreOverrideCursor(); // Restore cursor
+                loaded = false;
+                QMessageBox::information(this, "Error", "Cube LUT bad format");
+                return;
+            }
+
+            ShowTimer(false); // show elapsed time
+            QApplication::restoreOverrideCursor(); // Restore cursor
+        }
+    }
+    else {
+        loaded = false;
+        QMessageBox::information(this, "Error", "Problem loading Cube LUT");
+        return;
+    }
+
+    loaded = true; // loaded successfully !
+
+    ui->label_filename->setText(filename); // display filename in ui
+
+    //thumbnail = ResizeImageAspectRatio(image, cv::Size(ui->label_thumbnail->width(),ui->label_thumbnail->height())); // create thumbnail
+    thumbnail = cv::Mat::zeros(3, 3, CV_8UC3);
+    quantized.release(); // no quantized image yet
+    palette.release(); // no palette image yet
+    //classification.release();
+
+    ShowImages(); // show images in GUI
+    ui->openGLWidget_3d->nb_palettes = -1; // no palette to show yet
+    ui->openGLWidget_3d->update(); // show empty 3D view
+
+    ui->timer->display("-------"); // reset timer in GUI
+    ui->spinBox_nb_palettes->setStyleSheet("QSpinBox{color:black;}"); // number of colors in black = no error
+
+    ui->label_color_bar->setPixmap(QPixmap()); // show picked color
+    ui->label_color_r->setText(""); // show RGB values
+    ui->label_color_g->setText("");
+    ui->label_color_b->setText("");
+    ui->label_color_hex->setText("");
+    ui->label_color_percentage->setText("");
+    ui->label_color_name->setText("");
+
+    // set special options for LUTs
+    ui->checkBox_filter_grays->setChecked(false); // don't filter grays
+    ui->checkBox_filter_percent->setChecked(false); // don't filter low values
+    ui->spinBox_nb_palettes->setValue(512); // 512 levels of color
+
+    Compute();
+}
+
 void MainWindow::on_button_save_clicked() // save dominant colors results
 {
     QString filename = QFileDialog::getSaveFileName(this, "Save image file", QString::fromStdString(basedir + basefile + ".png"), tr("PNG (*.png *.PNG)")); // image filename
@@ -564,13 +684,13 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
 
     if (save) { // if successfully open
         setlocale(LC_ALL, "C"); // force numeric separator=dot instead of comma (I'm French) when using std functions
-        save << "Name;RGB.R byte;RGB.G byte;RGB.B byte;RGB.R %;RGB.G %;RGB.B %;RGB hexadecimal;HSV.H °;HSV.S %;HSV.V %;HSV.C %;HSL.H °;HSL.S %;HSL.L %;HSL.C %;HWB.H °;HWB.W %;HWB.B %;XYZ.X %;XYZ.Y %;XYZ.Z %;xyY.x %;xyY.y %;xyY.Y %;L*u*v*.L %;L*u*v*.u %;L*u*v*.v %;LCHuv.L %;LCHuv.C %;LCHuv.H °;L*A*B*.L %;L*A*B*.a signed max=127;L*A*B*.b signed max=127;LCHab.L %;LCHab.C %;LCHab.H °;Hunter LAB.L %;Hunter LAB.a signed %;Hunter LAB.b signed %;LMS.L %;LMS.M %;LMS.S °;CMYK.C %;CMYK.M %;CMYK.Y %;CMYK.K %;Percentage\n"; // CSV header
+        save << "Name;RGB.R;RGB.G;RGB.B;RGB.R normalized;RGB.G normalized;RGB.B normalized;RGB hexadecimal;HSV.H °;HSV.S;HSV.V;HSV.C;HSL.H °;HSL.S;HSL.L;HSL.C;HWB.H °;HWB.W;HWB.B;XYZ.X;XYZ.Y;XYZ.Z;xyY.x;xyY.y;xyY.Y;L*u*v*.L;L*u*v*.u;L*u*v*.v;LCHuv.L;LCHuv.C;LCHuv.H °;L*A*B*.L;L*A*B*.a signed;L*A*B*.b signed;LCHab.L;LCHab.C;LCHab.H °;Hunter LAB.L;Hunter LAB.a signed;Hunter LAB.b signed;LMS.L;LMS.M;LMS.S;CMYK.C;CMYK.M;CMYK.Y;CMYK.K;OKLAB.L;OKLAB.a signed;OKLAB.b signed;OKLCH.L;OKLCH.C;OKLCH.H °;Percentage\n"; // CSV header
         for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // read palette
             save << ui->openGLWidget_3d->palettes[n].name << ";";
             // RGB [0..255]
-            save << round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0) << ";";
-            save << round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0) << ";";
-            save << round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0) << ";";
+            save << ui->openGLWidget_3d->palettes[n].RGB.R * 255.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].RGB.G * 255.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].RGB.B * 255.0 << ";";
             // RGB [0..1]
             save << ui->openGLWidget_3d->palettes[n].RGB.R << ";";
             save << ui->openGLWidget_3d->palettes[n].RGB.G << ";";
@@ -628,6 +748,14 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
             save << ui->openGLWidget_3d->palettes[n].CMYK.M * 100.0 << ";";
             save << ui->openGLWidget_3d->palettes[n].CMYK.Y * 100.0 << ";";
             save << ui->openGLWidget_3d->palettes[n].CMYK.K * 100.0 << ";";
+            // OKLAB
+            save << ui->openGLWidget_3d->palettes[n].OKLAB.L * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].OKLAB.A * 127.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].OKLAB.B * 127.0 << ";";
+            // OKLCH
+            save << ui->openGLWidget_3d->palettes[n].OKLCH.L * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].OKLCH.C * 100.0 << ";";
+            save << ui->openGLWidget_3d->palettes[n].OKLCH.H * 360.0 << ";";
             // percentage
             save << ui->openGLWidget_3d->palettes[n].percentage << "\n";
         }
@@ -639,19 +767,23 @@ void MainWindow::on_button_save_clicked() // save dominant colors results
     char buffer[771] = {0}; // .ACT files are 772 bytes long
     ofstream saveACT (basedir + basefile + "-palette-adobe.act", ios::out | ios::binary); // open stream
 
-    for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) { // palette values to buffer
+    int nbValues = ui->openGLWidget_3d->nb_palettes; // number of values to write
+    if (nbValues > 256) // 256 values max !
+        nbValues = 256; // so we'll save first 256 values
+
+    for (int n = 0; n < nbValues; n++) { // palette values to buffer
         buffer[n * 3 + 0] = round(ui->openGLWidget_3d->palettes[n].RGB.R * 255.0);
         buffer[n * 3 + 1] = round(ui->openGLWidget_3d->palettes[n].RGB.G * 255.0);
         buffer[n * 3 + 2] = round(ui->openGLWidget_3d->palettes[n].RGB.B * 255.0);
     }
-    buffer[768] = (unsigned short) ui->openGLWidget_3d->nb_palettes; // last second 16-bit value : number of colors in palette
+    buffer[768] = (unsigned short) nbValues; // last second 16-bit value : number of colors in palette
     buffer[770] = (unsigned short) 255; // last 16-bit value : which color is transparency
     saveACT.write(buffer, 772); // write 772 bytes from buffer
     saveACT.close(); // close binary file
 
     // palette .PAL file (text JASC-PAL for PaintShop Pro)
     ofstream saveJASC; // file to save
-    saveJASC.open(basedir + basefile + "-palette-paintshopro.pal"); // save palette file
+    saveJASC.open(basedir + basefile + "-palette-paintshoppro.pal"); // save palette file
     if (saveJASC) { // if successfully open
         saveJASC << "JASC-PAL\n0100\n";
         saveJASC << ui->openGLWidget_3d->nb_palettes << "\n";
@@ -731,22 +863,48 @@ void MainWindow::Compute() // analyze image dominant colors
     }
 
     if (ui->radioButton_eigenvectors->isChecked()) { // eigen method
-        std::vector<cv::Vec3b> palette_vec = DominantColorsEigen(imageCopy, ui->openGLWidget_3d->nb_palettes, &quantized); // get dominant palette, palette image and quantized image
+        cv::Mat cielab = ConvertImageRGBtoCIELab(imageCopy);
+        std::vector<cv::Vec3d> palette_vec = DominantColorsEigen(cielab, ui->openGLWidget_3d->nb_palettes, quantized); // get dominant palette, palette image and quantized image
+        quantized = ConvertImageCIELabToRGB(quantized);
 
-        for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) // store palette values in structured array
+        /*for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) // store palette values in structured array
         {
+            double R, G, B;
+            CIELabToRGB(palette_vec[n][0], palette_vec[n][1], palette_vec[n][2], R, G, B);
             // RGB
-            ui->openGLWidget_3d->palettes[n].RGB.R = double(palette_vec[n][2]) / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.G = double(palette_vec[n][1]) / 255.0;
-            ui->openGLWidget_3d->palettes[n].RGB.B = double(palette_vec[n][0]) / 255.0;
-        }
+            ui->openGLWidget_3d->palettes[n].RGB.R = R;
+            ui->openGLWidget_3d->palettes[n].RGB.G = G;
+            ui->openGLWidget_3d->palettes[n].RGB.B = B;
+        }*/
+
+        // palette from quantized image
+        cv::Vec3b color[ui->openGLWidget_3d->nb_palettes]; // temp palette
+        int nbColor = 0; // current color
+        for (int x = 0; x < quantized.cols; x++) // parse entire image
+            for (int y = 0; y < quantized.rows; y++) {
+                cv::Vec3b col = quantized.at<cv::Vec3b>(y, x); // current pixel color
+                bool found = false;
+                for (int i = 0; i < nbColor; i++) // look into temp palette
+                    if (col == color[i]) { // if color already exists
+                        found = true; // found, don't add it
+                        break;
+                    }
+                if (!found) { // color not already in temp palette
+                    color[nbColor] = col; // save new color
+                    ui->openGLWidget_3d->palettes[nbColor].RGB.R = col[2] / 255.0; // copy RGB values to global palette
+                    ui->openGLWidget_3d->palettes[nbColor].RGB.G = col[1] / 255.0;
+                    ui->openGLWidget_3d->palettes[nbColor].RGB.B = col[0] / 255.0;
+                    nbColor++; // one more color
+                }
+            }
+
         ui->openGLWidget_3d->ConvertPaletteFromRGB(); // convert RGB to other values
     }
     else if (ui->radioButton_k_means->isChecked()) { // K-means method
         cv::Mat1f colors; // to store palette from K-means
-        quantized = DominantColorsKMeans(imageCopy, ui->spinBox_nb_palettes->value(), &colors); // get quantized image and palette
+        quantized = DominantColorsKMeansRGB(imageCopy, ui->spinBox_nb_palettes->value(), colors); // get quantized image and palette
 
-        for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) // store palette in structured array
+        for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) // store palette in structured array
         {
             // RGB
             ui->openGLWidget_3d->palettes[n].RGB.R = double(colors(n, 2)) / 255.0;
@@ -759,7 +917,7 @@ void MainWindow::Compute() // analyze image dominant colors
     }
 
     // compute HSL values from RGB + compute hexa
-    for (int n = 0;n < ui->openGLWidget_3d->nb_palettes; n++) {
+    for (int n = 0; n < ui->openGLWidget_3d->nb_palettes; n++) {
         // HSL value
         double C;
         RGBtoHSL(ui->openGLWidget_3d->palettes[n].RGB.R, ui->openGLWidget_3d->palettes[n].RGB.G, ui->openGLWidget_3d->palettes[n].RGB.B,
@@ -1057,26 +1215,26 @@ QString MainWindow::ConvertColor(const double &R, const double &G, const double 
 
     // L*u*v*
     double u, v;
-    XYZtoLuv(X, Y, Z, L, u, v);
+    XYZtoCIELuv(X, Y, Z, L, u, v);
     result += "<b>CIE L*u*v*</b>.......... <b><font color='cadetblue'>L</font></b>: " + QString::number(L * 100.0, 'G', 5)
                 + " <b>u</b>: " + QString::number(u * 100.0, 'G', 5)
                 + " <b>v</b>: " + QString::number(v * 100.0, 'G', 5) + "<br>";
 
     // LCH*u*v*
-    LUVtoLCHuv(u, v, C, H);
+    CIELuvToCIELCHuv(u, v, C, H);
     result += "<b>CIE LChuv</b>.......... <b><font color='cadetblue'>L</font></b>: " + QString::number(L * 100.0, 'G', 5)
                 + " <b><font color='darkorange'>C</font></b>: " + QString::number(C * 100.0, 'G', 5)
                 + " <b><font color='magenta'>h</font></b>: " + QString::number(v * 360.0, 'G', 5) + "°<br>";
 
     // L*A*B*
     double a;
-    XYZtoLAB(X, Y, Z, L, a, b); // convert XYZ to LAB values
+    XYZtoCIELab(X, Y, Z, L, a, b); // convert XYZ to LAB values
     result += "<b>CIE L*a*b*</b>.......... <b><font color='cadetblue'>L</font></b>: " + QString::number(L * 100.0, 'G', 5)
                 + " <b><font color='darkkhaki'>a</font></b>: " + QString::number(a * 127.0, 'G', 5)
                 + " <b><font color='forestgreen'>b</font></b>: " + QString::number(b * 127.0, 'G', 5) + "<br>";
 
     // LCH*u*v*
-    LABtoLCHab(a, b, C, H);
+    CIELabToCIELCHab(a, b, C, H);
     result += "<b>CIE LChuv</b>.......... <b><font color='cadetblue'>L</font></b>: " + QString::number(L * 100.0, 'G', 5)
                 + " <b><font color='darkorange'>C</font></b>: " + QString::number(C * 100.0, 'G', 5)
                 + " <b><font color='magenta'>h</font></b>: " + QString::number(v * 360.0, 'G', 5) + "°<br>";
