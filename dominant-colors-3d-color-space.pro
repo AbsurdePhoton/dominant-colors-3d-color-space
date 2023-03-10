@@ -5,35 +5,47 @@
 #
 #    by AbsurdePhoton - www.absurdephoton.fr
 #
-#                v2 - 2019/11/08
+#                v2.3 - 2023/03/10
 #
 #-------------------------------------------------
 
-QT += core gui opengl
+QT += core gui openglwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = dominant-colors-3d-color-space
 TEMPLATE = app
 
-INCLUDEPATH += /usr/local/include/opencv2
+#INCLUDEPATH += /usr/local/include/opencv4/opencv2
 
-LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui
+LIBS += -fopenmp -ltbb -ffast-math -fno-math-errno
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
-        mat-image-tools.cpp \
-        dominant-colors.cpp \
-        openglwidget.cpp \
-        opengl-draw.cpp \
-        color-spaces.cpp
+SOURCES +=  main.cpp\
+            mainwindow.cpp \
+            openglwidget.cpp \
+            opengl-draw.cpp \
+            widgets/file-dialog.cpp \
+            lib/dominant-colors.cpp \
+            lib/color-spaces.cpp \
+            lib/angles.cpp \
+            lib/image-transform.cpp \
+            lib/image-color.cpp \
+            lib/image-lut.cpp \
+            lib/image-utils.cpp
 
 HEADERS  += mainwindow.h \
-            mat-image-tools.h \
-            dominant-colors.h \
             openglwidget.h \
             opengl-draw.h \
-            color-spaces.h
+            palette.h \
+            widgets/file-dialog.h \
+            lib/dominant-colors.h \
+            lib/color-spaces.h \
+            lib/angles.h \
+            lib/image-transform.h \
+            lib/image-color.h \
+            lib/image-utils.h \
+            lib/image-lut.h \
+            lib/randomizer.h
 
 FORMS    += mainwindow.ui
 
@@ -41,7 +53,18 @@ FORMS    += mainwindow.ui
 CONFIG += link_pkgconfig
 PKGCONFIG += opencv4
 
-QMAKE_CXXFLAGS += -std=c++11
-
 # icons
 RESOURCES += resources.qrc
+
+CONFIG += c++17
+
+# openMP
+QMAKE_LFLAGS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp
+
+# optimizations
+QMAKE_CXXFLAGS += -ffast-math -march=native -mtune=intel -msse4.2 -ftree-vectorize -mavx
+
+# optimization level
+#QMAKE_CXXFLAGS_RELEASE -= -O2
+#QMAKE_CXXFLAGS_RELEASE += -O3
