@@ -1,12 +1,14 @@
 # dominant-colors-3d-color-space
-## Find dominant colors in images with QT and OpenCV, with a nice GUI to show results in 3D color spaces
-### v2.1 - 2019-12-07 
+## Find dominant colors in images and LUTs with QT and OpenCV, with a nice GUI to show results in 3D color spaces
+### v2.3 - 2023-03-10 
 
 ![Screenshot - Global](screenshots/screenshot-gui.jpg?raw=true)
 <br/>
 
 ## HISTORY
 
+* v2.3 - Added a button to load a .cube LUT file instead of an image - it is immediately computed and can be visualized as usual
+* v2.2 - Adapted to recent Qt and OpenCV versions + OKLAB color space
 * v2.1 - GUI improvements + added filters when quantizing (greys, percents) + added CMYK in palette CSV file + save palettes for popular graphics software like Photoshop, Corel Draw and Paintshop Pro
 * v2 - added interesting color spaces + lettered axes and visible specter boundaries in 3d view + color conversion button + select/hide colors + bug-fixed Eigen method that was limited to 128 levels + palette cleaning + many other bug fixes
 * v1 - checked conversion formulas against online calculators: all good!
@@ -39,14 +41,16 @@ I wanted to analyze how the colors in my photos were distributed. I tried to fin
 ## WITH WHAT?
 
 Developed using:
-* Linux Ubuntu	16.04
-* QT Creator 3.5
+* Linux Ubuntu 22.04
+* QT Creator 6.0.2
 * Requires these libraries:
-  * QT 5
-  * openCV 4.1 compiled with openCV-contribs - should work with 3.x versions without much editing
+  * QT 6
+  * openCV 4.6 compiled with openCV-contribs - should work with 3.x versions without much editing
   * OpenGL - I used deprecated functions starting from v3.1, but it works under Ubuntu with my GeForce 1080 Ti
 
 This software should also work under Microsoft Windows: if you tried it successfully please contact me, I'd like to offer compiled Windows executables
+
+Don't forget to edit the compilation options at the bottom of the file "dominant-colors-3d-color-space.pro", I tweaked them for my own computer!
 
 <br/>
 <br/>
@@ -65,6 +69,17 @@ This software should also work under Microsoft Windows: if you tried it successf
 * You have two options before loading:
 	* Reduce size: the bigger the image, the longer you wait! Tests have shown that reducing the image to 512 pixels doesn't affect much the dominant colors distribution. It also helps with noisy images
 	* Gaussian blur: you might not want to reduce the image, but image noise can affect results VS what you really perceive. The solution is to apply a 3x3 Gaussian blur that helps smooth surfaces
+
+### Cube LUTs
+
+* Instead of an image, you can load a .cube LUT file, 1D or 3D LUTs accepted
+
+* LUTs are 3D lookup tables used to alter the colors in an image or a video, they are widely used in cinema to add a mood or give a visual identity. More info about LUTs here:https://en.wikipedia.org/wiki/3D_lookup_table
+
+* After loading the file, just wait a little and you will get a visualization of the target colors of the LUT. It is computed without the grays filter or the percentage filter, options you can change later. By default 512 color levels are used, but you can change that value and recompute up to 1024
+
+* If you change the default options, just click the "Quantize" button again - more about that later
+
 
 ### FINDING DOMINANT COLORS
 
@@ -205,11 +220,21 @@ The difference between the two methods will only be seen with complex images: K-
 
 * The last button is to save a snapshot of the curent 3D view. It also appears in full screen mode
 
+### Visualizing a LUT file
+
+* I added this function because you may need to have a look at the target colors of a .cube LUT file to visually analyze it
+
+* Groups of colors, symbolized by bigger spheres, can give you indications about the effect of the LUT: grayish of faded colors may give a "faded" look to your images, a lot of greens may show that the effect will add a green global hue, a lot of whites will most surely lighten the image, or "bleach" it...
+
+* Don't hesitate to change the color space for better analysis. HSV is great for that
+
+* For most LUTs, even by looking at it in a 3D color space, you won't be able to understand what effects they will have. Just try them in another program on real images!
+
 <br/>
 <br/>
 
 ## Enjoy!
 
 ### AbsurdePhoton
-My photographer website ''Photongénique'': www.absurdephoton.fr
+My photographer website: www.absurdephoton.fr
 
