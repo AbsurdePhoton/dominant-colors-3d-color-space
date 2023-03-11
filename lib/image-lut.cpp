@@ -16,6 +16,7 @@
 
 
 #include "image-lut.h"
+#include <QDebug>
 
 
 // .cube parser code: Adobe
@@ -26,7 +27,7 @@ std::string CubeLUT::ReadLine(std::ifstream& infile, const char lineSeparator)
     // Skip empty lines and comments
     const char CommentMarker = '#';
     std::string textLine;
-    while (textLine.empty() || textLine[0] == CommentMarker)
+    while ((textLine.empty()) or (textLine[0] == CommentMarker))
     {
         if (infile.eof())
         {
@@ -110,12 +111,12 @@ CubeLUT::LUTState CubeLUT::LoadCubeFile(std::ifstream& infile)
         std::string keyword;
         line >> keyword;
 
-        if ("+" < keyword && keyword < ":") //numbers
+        if (("+" < keyword) and (keyword < ":")) //numbers
         {
             infile.seekg(linePos);
             break;
         }
-        if (keyword == "TITLE" && CntTitle++ == 0)
+        else if ((keyword == "TITLE") and (CntTitle++ == 0))
         {
             const char QUOTE = '"';
             char startOfTitle;
@@ -127,41 +128,46 @@ CubeLUT::LUTState CubeLUT::LoadCubeFile(std::ifstream& infile)
             }
             getline(line, title, QUOTE);
         }
-        else if (keyword == "DOMAIN_MIN" && CntMin++ == 0)
+        else if ((keyword == "DOMAIN_MIN") and (CntMin++ == 0))
         {
             line >> domainMin[0] >> domainMin[1] >> domainMin[2];
         }
-        else if (keyword == "DOMAIN_MAX" && CntMax++ == 0)
+        else if ((keyword == "DOMAIN_MAX") and (CntMax++ == 0))
         {
             line >> domainMax[0] >> domainMax[1] >> domainMax[2];
         }
-        else if (keyword == "LUT_1D_SIZE" && CntSize++ == 0)
+        else if ((keyword == "LUT_1D_SIZE") and (CntSize++ == 0))
         {
             line >> N;
-            if (N < 2 || N > 65536)
+            if ((N < 2) or (N > 65536))
             {
                 status = LUTSizeOutOfRange;
+                qDebug() << "LUT size out of range : " << N;
                 break;
             }
             LUT1D = table1D(N, tableRow(3));
         }
-        else if (keyword == "LUT_3D_SIZE" && CntSize++ == 0)
+        else if ((keyword == "LUT_3D_SIZE") and (CntSize++ == 0))
         {
             line >> N;
-            if (N < 2 || N > 256)
+            if ((N < 2) or (N > 256))
             {
                 status = LUTSizeOutOfRange;
+                qDebug() << "LUT size out of range : " << N;
                 break;
             }
             LUT3D = table3D(N, table2D(N, table1D(N, tableRow(3))));
         }
         else
         {
-            status = UnknownOrRepeatedKeyword;
-            break;
+            if (keyword != "") {
+                status = UnknownOrRepeatedKeyword;
+                qDebug() << "Unknown keyword : " << QString::fromStdString(keyword);
+                break;
+            }
         }
 
-        if (line.fail())
+        if ((line.fail()) and (keyword != ""))
         {
             status = ReadError;
             break;
@@ -169,8 +175,10 @@ CubeLUT::LUTState CubeLUT::LoadCubeFile(std::ifstream& infile)
     }
 
     if (status == OK) {
-        if (CntSize == 0)
+        if (CntSize == 0) {
             status = LUTSizeOutOfRange;
+            qDebug() << "LUT size out of range : no data";
+        }
         if ((domainMin[0] >= domainMax[0]) or (domainMin[1] >= domainMax[1]) or (domainMin[2] >= domainMax[2]))
             status = DomainBoundsReversed;
     }
@@ -186,7 +194,7 @@ CubeLUT::LUTState CubeLUT::LoadCubeFile(std::ifstream& infile)
     if (LUT1D.size() > 0)
     {
         N = LUT1D.size();
-        for (int i{ 0 }; i < N && status == OK; ++i)
+        for (int i{ 0 }; (i < N) and (status == OK); ++i)
         {
             LUT1D[i] = ParseTableRow(ReadLine(infile, lineSeparator));
         }
@@ -195,16 +203,12 @@ CubeLUT::LUTState CubeLUT::LoadCubeFile(std::ifstream& infile)
     {
         N = LUT3D.size();
 
-        for (int b{ 0 }; b < N && status == OK; ++b)
+        for (int b{ 0 }; (b < N) and (status == OK); ++b)
         {
-            for (int g{ 0 }; g < N && status == OK; ++g)
+            for (int g{ 0 }; (g < N) and (status == OK); ++g)
             {
-                for (int r{ 0 }; r < N && status == OK; ++r)
+                for (int r{ 0 }; (r < N) and (status == OK); ++r)
                 {
-                    /*if (b == 63 && g == 63 && r == 62)
-                    {
-                        printf("");
-                    }*/
                     LUT3D[r][g][b] = ParseTableRow(ReadLine(infile, lineSeparator));
                 }
             }
