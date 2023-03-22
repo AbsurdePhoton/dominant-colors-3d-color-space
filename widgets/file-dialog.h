@@ -1,3 +1,13 @@
+/*#-------------------------------------------------
+#
+#    Qt file dialog widget with image preview
+#
+#    by AbsurdePhoton - www.absurdephoton.fr
+#
+#               v1.0 - 2021/04/26
+#
+#-------------------------------------------------*/
+
 #ifndef PREVIEW_FILE_DIALOG_H
 #define PREVIEW_FILE_DIALOG_H
 

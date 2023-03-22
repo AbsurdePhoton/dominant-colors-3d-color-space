@@ -1,3 +1,13 @@
+/*#-------------------------------------------------
+#
+#    Qt file dialog widget with image preview
+#
+#    by AbsurdePhoton - www.absurdephoton.fr
+#
+#               v1.0 - 2021/04/26
+#
+#-------------------------------------------------*/
+
 #include "file-dialog.h"
 #include <QLabel>
 #include <QGridLayout>
